@@ -1,0 +1,39 @@
+# Flow 
+Tạo base project -> migration -> module
+
+# Thứ tự tạo Migration
+users -> roles -> permissions -> subjects -> notifications -> user_roles -> role_permissions -> chapters 
+-> questions -> answers -> teacher_subjects -> study_groups -> group_students -> exams -> exam_questions
+-> exam_configs -> exam_attempts -> attempt_answers
+
+# Tạo Module mới
+nest generate module module-name
+nest g mo module-name
+
+# Tạo Service mới
+nest generate service service-name
+nest g s service-name
+
+# Tạo Controller mới
+nest generate controller controller-name
+nest g co controller-name
+
+# Tạo Middleware
+nest generate middleware middleware-name
+
+# Tạo Guard
+nest generate guard guard-name
+
+# Tạo Interceptor
+nest generate interceptor interceptor-name
+
+# Tạo Migration mới
+npx typeorm migration:create -n MigrationName
+
+# Chạy Migration
+npx typeorm migration:run
+
+# Rollback Migration
+npx typeorm migration:revert
+
+
