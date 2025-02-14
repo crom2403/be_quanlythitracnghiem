@@ -21,7 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:create": "typeorm-ts-node-commonjs migration:create ./src/database/migrations/%npm_config_name%",
-    "migration:generate": "typeorm-ts-node-commonjs migration:generate ./src/database/migrations/%npm_config_name% -d ./src/config/datasource.ts",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate ./src/database/migrations/%npm_config_name%",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d ./src/config/datasource.ts",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d ./src/config/datasource.ts"
   },
@@ -35,8 +35,7 @@
     "class-validator": "^0.14.1",
     "mysql2": "^3.12.0",
     "reflect-metadata": "^0.2.0",
-    "rxjs": "^7.8.1",
-    "typeorm": "^0.3.20"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
@@ -57,8 +56,9 @@
     "supertest": "^7.0.0",
     "ts-jest": "^29.1.0",
     "ts-loader": "^9.4.3",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "typeorm": "^0.3.20",
     "typescript": "^5.1.3"
   },
   "jest": {
