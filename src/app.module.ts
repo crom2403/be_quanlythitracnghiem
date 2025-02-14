@@ -5,7 +5,6 @@ import { getTypeOrmConfig } from './config/typeorm.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PermissionsModule } from './modules/permissions/permissions.module';
-import { SubjectModule } from './subject/subject.module';
 import { SubjectModule } from './modules/subject/subject.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { StudyGroupModule } from './modules/study-group/study-group.module';
