@@ -11,7 +11,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   // Cấu hình Global Prefix
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api/v1');
 
   // Cấu hình CORS
   app.enableCors({
@@ -38,6 +38,6 @@ async function bootstrap() {
   // Khởi động server
   const port = configService.get('PORT', 3000);
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
+  console.log(`Application is running on: http://localhost:${port}/api/v1`);
 }
 bootstrap();

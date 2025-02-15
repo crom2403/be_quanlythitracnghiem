@@ -10,6 +10,8 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { StudyGroupModule } from './modules/study-group/study-group.module';
 import { ExamModule } from './modules/exam/exam.module';
 import { ContentModule } from './modules/content/content.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from 'src/modules/users/users.module';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { ContentModule } from './modules/content/content.module';
     StudyGroupModule,
     ExamModule,
     ContentModule,
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
