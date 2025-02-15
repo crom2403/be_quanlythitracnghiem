@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/modules/users/users.service';
 import * as bcrypt from 'bcrypt';
@@ -32,16 +32,92 @@ export class AuthService {
   }
 
   // Login và tạo JWT token
-  async login(user: any) {
-    const payload = {
-      email: user.email,
-      sub: user.id,
-      roles: user.roles,
-    };
+  async login(student_code: string, password: string) {
+    const user = await this.usersService.findByStudentCode(student_code);
+    if (!user) {
+      throw new UnauthorizedException('Thông tin không hợp lệ');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Mật khẩu không hợp lệ');
+    }
+
+    const tokens = await this.getTokens(user.id, user.email);
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
+  }
+  // Xử lý refresh token
+  // - Kiểm tra user có tồn tại và có refresh token không
+  // - Verify refresh token có match với token đã lưu
+  // - Tạo cặp token mới
+  async refreshTokens(userId: number, refreshToken: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user || !user.refreshToken) {
+      throw new UnauthorizedException('Access Denied');
+    }
+
+    const refreshTokenMatches = await bcrypt.compare(
+      refreshToken,
+      user.refreshToken,
+    );
+    if (!refreshTokenMatches) {
+      throw new UnauthorizedException('Access Denied');
+    }
+
+    const tokens = await this.getTokens(user.id, user.email);
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
+  }
+
+  // Xử lý logout
+  // - Xóa refresh token trong database
+  async logout(userId: number) {
+    return this.usersService.update(userId, { refreshToken: null });
+  }
+
+  // Hàm private tạo cặp token mới
+  // - Access token có thời hạn 15 phút
+  // - Refresh token có thời hạn 7 ngày
+  private async getTokens(userId: number, email: string) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          email,
+        },
+        {
+          secret: process.env.JWT_ACCESS_SECRET,
+          expiresIn: '15m',
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          email,
+        },
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+          expiresIn: '7d',
+        },
+      ),
+    ]);
 
     return {
-      access_token: this.jwtService.sign(payload),
+      accessToken,
+      refreshToken,
     };
+  }
+
+  // Hàm private cập nhật refresh token
+  // - Hash refresh token trước khi lưu vào database
+  private async updateRefreshToken(userId: number, refreshToken: string) {
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.usersService.update(userId, {
+      refreshToken: hashedRefreshToken,
+    });
   }
 
   // Register new User

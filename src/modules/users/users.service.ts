@@ -37,7 +37,16 @@ export class UsersService {
     };
   }
 
+  async findById(id: number): Promise<User> {
+    return this.userRepository.findOne({ where: { id } });
+  }
+
   async create(data: User): Promise<User> {
     return this.userRepository.save(data);
+  }
+
+  async update(id: number, data: Partial<User>): Promise<User> {
+    await this.userRepository.update({ id }, data);
+    return this.userRepository.findOne({ where: { id } });
   }
 }

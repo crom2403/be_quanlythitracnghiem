@@ -12,6 +12,9 @@ import { ExamModule } from './modules/exam/exam.module';
 import { ContentModule } from './modules/content/content.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from 'src/modules/users/users.module';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { TokenInterceptor } from 'src/modules/auth/interceptors/token.interceptor';
 
 @Module({
   imports: [
@@ -33,6 +36,18 @@ import { UsersModule } from 'src/modules/users/users.module';
     UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // JWT Guard global
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    // Token Interceptor global
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TokenInterceptor,
+    },
+  ],
 })
 export class AppModule {}

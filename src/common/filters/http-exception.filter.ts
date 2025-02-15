@@ -4,6 +4,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { QueryFailedError } from 'typeorm';
@@ -43,6 +44,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       message = (exception as any).message;
       error = 'Database Error';
     }
+
+    // Xử lý UnauthorizedException
+    else if (exception instanceof UnauthorizedException) {
+      message = 'Không có quyền truy cập';
+    }
+
     // Xử lý các lỗi khác
     else if (exception instanceof Error) {
       message = exception.message;

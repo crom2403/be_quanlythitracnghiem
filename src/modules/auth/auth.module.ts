@@ -4,19 +4,20 @@ import { PassportModule } from '@nestjs/passport';
 import { UsersModule } from '../users/users.module';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { LocalStrategy } from './strategies/local.strategy';
+import { RefreshTokenStrategy } from 'src/modules/auth/strategies/refresh-token.strategy';
+import { TokenInterceptor } from 'src/modules/auth/interceptors/token.interceptor';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET, // Khóa bí mật để ký JWT token
-      signOptions: { expiresIn: '1d' }, // Token hết hạn sau 1 ngày
+      global: true, // Để có thể sử dụng JwtService ở mọi nơi
+      secret: process.env.JWT_SECRET || 'matkhaubimat',
+      signOptions: { expiresIn: '1h' },
     }),
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
-  // providers: [AuthService],
-  exports: [AuthService],
+  providers: [AuthService, JwtStrategy, RefreshTokenStrategy, TokenInterceptor],
+  exports: [AuthService, TokenInterceptor],
 })
 export class AuthModule {}

@@ -40,7 +40,11 @@ export class User {
     enum: ['admin', 'teacher', 'student'],
     default: 'student',
   })
+  @Column()
   user_type: string;
+
+  @Column({ nullable: true })
+  refreshToken: string;
 
   @CreateDateColumn()
   created_at: Date;
