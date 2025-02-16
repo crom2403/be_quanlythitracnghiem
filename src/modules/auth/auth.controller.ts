@@ -4,6 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from 'src/modules/auth/auth.service';
 import { GetCurrentUser } from 'src/modules/auth/decorators/get-current-user.decorator';
 import { Public } from 'src/modules/auth/decorators/public.decorator';
+import { LoginDto } from 'src/modules/auth/dto/auth.dto';
 import { loginRateLimiter } from 'src/modules/auth/middleware/rate-limiter.middleware';
 
 // Controller xử lý các route authentication
@@ -16,8 +17,8 @@ export class AuthController {
   // - Nhận email và password từ body
   @Public()
   @Post('login')
-  async login(@Body() loginDto: { email: string; password: string }) {
-    return this.authService.login(loginDto.email, loginDto.password);
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto.student_code, loginDto.password);
   }
 
   // Route đăng xuất: /auth/logout

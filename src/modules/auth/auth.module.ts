@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RefreshTokenStrategy } from 'src/modules/auth/strategies/refresh-token.strategy';
 import { TokenInterceptor } from 'src/modules/auth/interceptors/token.interceptor';
+import { AuthController } from 'src/modules/auth/auth.controller';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { TokenInterceptor } from 'src/modules/auth/interceptors/token.intercepto
       signOptions: { expiresIn: '1h' },
     }),
   ],
+  controllers: [AuthController],
   providers: [AuthService, JwtStrategy, RefreshTokenStrategy, TokenInterceptor],
   exports: [AuthService, TokenInterceptor],
 })

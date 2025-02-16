@@ -11,7 +11,7 @@ export class AuthService {
 
   // Phương thức xác thực user
   async validateUser(student_code: string, password: string): Promise<any> {
-    // Tìm user theo email
+    // Tìm user theo student_code
     const user = await this.usersService.findByStudentCode(student_code);
 
     if (!user) {
@@ -66,7 +66,7 @@ export class AuthService {
       throw new UnauthorizedException('Access Denied');
     }
 
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(user.id, user.student_code);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
 
     return tokens;
@@ -81,22 +81,23 @@ export class AuthService {
   // Hàm private tạo cặp token mới
   // - Access token có thời hạn 15 phút
   // - Refresh token có thời hạn 7 ngày
-  private async getTokens(userId: number, email: string) {
+  private async getTokens(userId: number, student_code: string) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: userId,
-          email,
+          student_code,
         },
         {
           secret: process.env.JWT_ACCESS_SECRET,
-          expiresIn: '15m',
+          expiresIn: '1d',
+          // expiresIn: '15m',
         },
       ),
       this.jwtService.signAsync(
         {
           sub: userId,
-          email,
+          student_code,
         },
         {
           secret: process.env.JWT_REFRESH_SECRET,

@@ -24,6 +24,9 @@ export class User {
   birthday: Date;
 
   @Column()
+  gender: 'Nam' | 'Nữ';
+
+  @Column()
   password: string;
 
   @Column()
@@ -40,7 +43,6 @@ export class User {
     enum: ['admin', 'teacher', 'student'],
     default: 'student',
   })
-  @Column()
   user_type: string;
 
   @Column({ nullable: true })
