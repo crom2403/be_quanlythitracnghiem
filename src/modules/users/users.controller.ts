@@ -1,9 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiResponse } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { Public } from 'src/modules/auth/decorators/public.decorator';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { Role } from 'src/modules/auth/roles/roles.enum';
+import { CreateUserDto } from 'src/modules/users/dto/create-user.dto';
 import { UsersService } from 'src/modules/users/users.service';
 
 @Controller('users')
@@ -14,5 +26,22 @@ export class UsersController {
   //   @Roles(Role.ADMIN)
   async findAll(@Query() paginationDto: PaginationDto) {
     return await this.userService.findAll(paginationDto);
+  }
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return await this.userService.findById(+id);
+  }
+
+  @Post()
+  @ApiResponse({ status: 201, description: 'User created successfully.' })
+  @ApiResponse({ status: 400, description: 'Bad request.' })
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.userService.create(createUserDto);
+  }
+
+  @Delete(':id')
+  @ApiResponse({ status: 201, description: 'User deleted successfully.' })
+  remove(@Param('id') id: string) {
+    return this.userService.remove(id);
   }
 }

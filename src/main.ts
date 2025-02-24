@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { ConfigService } from '@nestjs/config';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -34,6 +35,16 @@ async function bootstrap() {
 
   // Áp dụng Global Exception Filter
   app.useGlobalFilters(new GlobalExceptionFilter());
+
+  // Setup Swagger
+  const config = new DocumentBuilder()
+    .setTitle('quanlythitracngiem API documentation')
+    .setDescription('')
+    .setVersion('1.0')
+    .addTag('quanlythitracnghiem')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/v1', app, documentFactory);
 
   // Khởi động server
   const port = configService.get('PORT', 3000);

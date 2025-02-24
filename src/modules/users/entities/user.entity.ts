@@ -1,9 +1,12 @@
+import { Exclude } from 'class-transformer';
+import { Role } from 'src/modules/users/entities/role.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
 
 @Entity()
@@ -12,40 +15,35 @@ export class User {
   id: number;
 
   @Column({ unique: true })
-  email: string;
-
-  @Column({ unique: true })
   student_code: string;
 
-  @Column()
-  phone_number: string;
+  @Column({ unique: true })
+  email: string;
 
   @Column()
-  birthday: Date;
+  fullname: string;
 
   @Column()
   gender: 'Nam' | 'Nữ';
 
   @Column()
-  password: string;
+  birthday: Date;
+
+  @ManyToOne(() => Role, (role) => role.users, { onDelete: 'SET NULL' }) // Nếu role bị xóa, cột role_id trong users sẽ trở thành NULL thay vì xóa user.
+  role: Role;
 
   @Column()
-  full_name: string;
+  @Exclude() // Loại trừ password khỏi response
+  password: string;
+
+  @Column({ default: true })
+  status: boolean;
 
   @Column({ nullable: true })
   avatar: string;
 
   @Column({ nullable: true })
-  google_id: string;
-
-  @Column({
-    type: 'enum',
-    enum: ['admin', 'teacher', 'student'],
-    default: 'student',
-  })
-  user_type: string;
-
-  @Column({ nullable: true })
+  @Exclude() // Loại trừ password khỏi response
   refreshToken: string;
 
   @CreateDateColumn()
