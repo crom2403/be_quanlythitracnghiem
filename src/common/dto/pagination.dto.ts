@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, Min } from 'class-validator';
+import { IsInt, IsNumber, IsOptional, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class PaginationDto {
@@ -13,4 +13,10 @@ export class PaginationDto {
   @IsInt()
   @Min(1)
   limit?: number = 10;
+
+  // Thêm thuộc tính subjectId (tùy chọn)
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  subjectId?: number;
 }

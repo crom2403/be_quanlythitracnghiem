@@ -13,17 +13,11 @@ export class Chapter {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Subject)
+  @ManyToOne(() => Subject, { onDelete: 'NO ACTION' })
   subject: Subject;
 
   @Column()
   name: string;
-
-  @Column('text')
-  description: string;
-
-  @Column()
-  order_index: number;
 
   @CreateDateColumn()
   created_at: Date;
