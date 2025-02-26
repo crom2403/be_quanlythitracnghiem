@@ -43,7 +43,7 @@ export class AuthService {
       throw new UnauthorizedException('Mật khẩu không hợp lệ');
     }
 
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(user.id, user.student_code);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
 
     return tokens;
@@ -85,8 +85,10 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
-          sub: userId,
-          student_code,
+          sub: {
+            userId,
+            student_code,
+          },
         },
         {
           secret: process.env.JWT_ACCESS_SECRET,

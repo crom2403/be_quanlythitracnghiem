@@ -10,47 +10,47 @@ import {
 } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { ContentService } from 'src/modules/content/content.service';
+import { ChapterService } from 'src/modules/content/chapter.service';
 import { CreateChapterDto } from 'src/modules/content/dto/create-chapter.dto';
 import { UpdateChapterDto } from 'src/modules/content/dto/update-chapter.dto';
 
-@Controller('')
-export class ContentController {
-  constructor(private readonly contentService: ContentService) {}
+@Controller('/chapter')
+export class ChapterController {
+  constructor(private readonly chapterService: ChapterService) {}
 
-  @Get('/chapter')
+  @Get()
   findAll(
     @Query('subjectId') subjectId: string,
     @Query() paginationDto: PaginationDto,
   ) {
-    return this.contentService.getAllChapters(
+    return this.chapterService.getAllChapters(
       subjectId ? parseInt(subjectId) : null,
       paginationDto,
     );
   }
 
-  @Get('/chapter/:id')
+  @Get(':id')
   async getChapterById(@Param('id') id: string) {
-    return await this.contentService.getChapterById(+id);
+    return await this.chapterService.getChapterById(+id);
   }
 
   @Post('/chapter')
   @ApiResponse({ status: 201, description: 'User created successfully.' })
   @ApiResponse({ status: 400, description: 'Bad request.' })
   async createChapter(@Body() createChapterDto: CreateChapterDto) {
-    return await this.contentService.createChapter(createChapterDto);
+    return await this.chapterService.createChapter(createChapterDto);
   }
 
-  @Delete('/chapter/:id')
+  @Delete(':id')
   async deleteChapter(@Param('id') id: string) {
-    return await this.contentService.deleteChapter(+id);
+    return await this.chapterService.deleteChapter(+id);
   }
 
-  @Put('/chapter/:id')
+  @Put(':id')
   async updateChapter(
     @Param('id') id: string,
     @Body() updateChapterDto: UpdateChapterDto,
   ) {
-    return await this.contentService.updateChapter(+id, updateChapterDto);
+    return await this.chapterService.updateChapter(+id, updateChapterDto);
   }
 }

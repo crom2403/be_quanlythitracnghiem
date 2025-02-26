@@ -5,20 +5,16 @@ import { PaginationResult } from 'src/common/interfaces/pagination.interface';
 import { CreateChapterDto } from 'src/modules/content/dto/create-chapter.dto';
 import { UpdateChapterDto } from 'src/modules/content/dto/update-chapter.dto';
 import { Chapter } from 'src/modules/content/entities/chapter.entity';
-import { Question } from 'src/modules/content/entities/question.entity';
 import { Subject } from 'src/modules/subject/entities/subject.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class ContentService {
+export class ChapterService {
   constructor(
     @InjectRepository(Chapter)
     private chapterRepository: Repository<Chapter>,
     @InjectRepository(Subject)
     private subjectRepository: Repository<Subject>,
-
-    @InjectRepository(Question)
-    private questionRepository: Repository<Question>,
   ) {}
 
   async getAllChapters(
@@ -107,26 +103,5 @@ export class ContentService {
     } else {
       return `Chapter with Id ${id} deleted successfully`;
     }
-  }
-
-  async getAllQuestions(
-    paginationDto: PaginationDto,
-  ): Promise<PaginationResult<Question>> {
-    const { page, limit } = paginationDto;
-    const [items, total] = await this.questionRepository.findAndCount({
-      skip: (page - 1) * limit,
-      take: limit,
-      order: {
-        id: 'DESC',
-      },
-    });
-
-    return {
-      items,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
   }
 }
