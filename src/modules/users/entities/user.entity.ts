@@ -1,4 +1,5 @@
 import { Exclude } from 'class-transformer';
+import { GroupStudent } from 'src/modules/study-group/entities/group-student.entity';
 import { Role } from 'src/modules/users/entities/role.entity';
 import {
   Entity,
@@ -7,6 +8,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -45,6 +47,9 @@ export class User {
   @Column({ nullable: true })
   @Exclude() // Loại trừ password khỏi response
   refreshToken: string;
+
+  @OneToMany(() => GroupStudent, (group_student) => group_student.student)
+  group_students: GroupStudent[];
 
   @CreateDateColumn()
   created_at: Date;

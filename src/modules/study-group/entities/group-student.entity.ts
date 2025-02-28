@@ -10,10 +10,14 @@ export class GroupStudent {
   @PrimaryColumn()
   student_id: number;
 
-  @ManyToOne(() => StudyGroup)
-  group: StudyGroup;
+  @ManyToOne(() => StudyGroup, (study_group) => study_group.group_students, {
+    nullable: false,
+  })
+  study_group: StudyGroup;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, (student) => student.group_students, {
+    nullable: false,
+  })
   student: User;
 
   @CreateDateColumn()
