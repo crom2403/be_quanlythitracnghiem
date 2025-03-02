@@ -3,8 +3,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { PaginationResult } from 'src/common/interfaces/pagination.interface';
+import { CreateAssignmentDto } from 'src/modules/subject/dto/create-assignment.dto';
 import { CreateSubjectDto } from 'src/modules/subject/dto/create-subject.dto';
 import { Subject } from 'src/modules/subject/entities/subject.entity';
+import { TeacherSubject } from 'src/modules/subject/entities/teacher-subject.entity';
+import { User } from 'src/modules/users/entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -12,6 +15,10 @@ export class SubjectService {
   constructor(
     @InjectRepository(Subject)
     private subjectRepository: Repository<Subject>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(TeacherSubject)
+    private teacherSubjectRepository: Repository<TeacherSubject>,
   ) {}
 
   async getAll(
@@ -69,5 +76,46 @@ export class SubjectService {
     } else {
       return `Subject with Id ${id} deleted successfully`;
     }
+  }
+
+  async assignTeacherToSubject(
+    userId: number,
+    subjectId: number,
+  ): Promise<any> {
+    const subject = await this.subjectRepository.findOneBy({ id: subjectId });
+    const teacher = await this.userRepository.findOneBy({ id: userId });
+    if (!subject) {
+      throw new NotFoundException('Subject not found, cannot assign teacher');
+    }
+    if (!teacher) {
+      throw new NotFoundException('Teacher not found, cannot assign teacher');
+    }
+
+    // Tạo phân công mới
+    const teacherSubject = this.teacherSubjectRepository.create({
+      subject,
+      teacher,
+    });
+    await this.teacherSubjectRepository.save(teacherSubject);
+  }
+
+  // Tạo phân công cho giáo viên
+  async createAssignment(
+    userId: number,
+    createAssignDto: CreateAssignmentDto[],
+  ): Promise<any> {
+    // Xóa tất cả các phân công cũ của giáo viên
+    await this.teacherSubjectRepository.delete({ teacher: { id: userId } });
+
+    // Tạo mới các phân công mới
+    createAssignDto.forEach(async (assign) => {
+      if (assign.isAssign) {
+        await this.assignTeacherToSubject(userId, assign.subject_id);
+      }
+    });
+
+    return {
+      message: 'Assign teacher to subject successfully',
+    };
   }
 }

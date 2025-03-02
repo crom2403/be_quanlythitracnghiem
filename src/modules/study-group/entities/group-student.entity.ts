@@ -1,14 +1,16 @@
 import { StudyGroup } from 'src/modules/study-group/entities/study-group.entity';
 import { User } from 'src/modules/users/entities/user.entity';
-import { CreateDateColumn, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import {
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class GroupStudent {
-  @PrimaryColumn()
-  group_id: number;
-
-  @PrimaryColumn()
-  student_id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @ManyToOne(() => StudyGroup, (study_group) => study_group.group_students, {
     nullable: false,

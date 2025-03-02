@@ -8,9 +8,11 @@ import {
   Post,
   Put,
   Query,
+  Request,
 } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { CreateAssignmentDto } from 'src/modules/subject/dto/create-assignment.dto';
 import { CreateSubjectDto } from 'src/modules/subject/dto/create-subject.dto';
 import { SubjectService } from 'src/modules/subject/subject.service';
 
@@ -31,6 +33,21 @@ export class SubjectController {
     } else {
       return subject;
     }
+  }
+
+  // Phân công giáo viên cho môn học
+  @Post('assign-teacher')
+  async assignTeacherToSubject(
+    @Request() req,
+    @Body() createAssignmentDto: CreateAssignmentDto[],
+  ) {
+    const userId = req.user?.sub.userId;
+    console.log('userId', userId);
+
+    return await this.subjectService.createAssignment(
+      userId,
+      createAssignmentDto,
+    );
   }
 
   @Post()

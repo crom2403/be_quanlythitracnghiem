@@ -1,5 +1,6 @@
 import { Exclude } from 'class-transformer';
 import { GroupStudent } from 'src/modules/study-group/entities/group-student.entity';
+import { TeacherSubject } from 'src/modules/subject/entities/teacher-subject.entity';
 import { Role } from 'src/modules/users/entities/role.entity';
 import {
   Entity,
@@ -33,6 +34,13 @@ export class User {
 
   @ManyToOne(() => Role, (role) => role.users, { onDelete: 'SET NULL' }) // Nếu role bị xóa, cột role_id trong users sẽ trở thành NULL thay vì xóa user.
   role: Role;
+
+  @OneToMany(
+    () => TeacherSubject,
+    (teacher_subject) => teacher_subject.teacher,
+    { cascade: true },
+  )
+  teacher_subjects: TeacherSubject[];
 
   @Column()
   @Exclude() // Loại trừ password khỏi response

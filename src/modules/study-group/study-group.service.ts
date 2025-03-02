@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationResult } from 'src/common/interfaces/pagination.interface';
 import { CreateStudyGroupDto } from 'src/modules/study-group/dto/create-studygroup.dto';
 import { AcademicYear } from 'src/modules/study-group/entities/academic-year.entity';
 import { Semester } from 'src/modules/study-group/entities/semester.entity';
@@ -24,7 +25,53 @@ export class StudyGroupService {
     private subjectRepository: Repository<Subject>,
   ) {}
 
-  async getAllStudyGroups(paginationDto: PaginationDto) {
+  async onModuleInit() {
+    await this.createDefaultAcademicYear();
+    await this.createDefaultSemester();
+  }
+
+  async createDefaultAcademicYear() {
+    const count = await this.academicYearRepository.count();
+    if (count == 0) {
+      const currentYear = new Date().getFullYear() + 2; // Lấy năm hiện tại
+      const academicYears = [];
+
+      for (let i = 7; i > 0; i--) {
+        academicYears.push({
+          start_year: currentYear - i - 1,
+          end_year: currentYear - i,
+        });
+      }
+      console.log(academicYears);
+
+      for (const academicYear of academicYears) {
+        const academicYearEntity = this.academicYearRepository.create({
+          start_year: academicYear.start_year,
+          end_year: academicYear.end_year,
+        });
+        await this.academicYearRepository.save(academicYearEntity);
+      }
+      console.log('Create academic year success');
+    }
+  }
+
+  async createDefaultSemester() {
+    const count = await this.semesterRepository.count();
+    if (count == 0) {
+      const semesters = ['Học kỳ 1', 'Học kỳ 2', 'Học kỳ hè'];
+      for (const semester of semesters) {
+        const semesterEntity = this.semesterRepository.create({
+          name: semester,
+        });
+        await this.semesterRepository.save(semesterEntity);
+      }
+      console.log('Create semester success');
+    }
+  }
+
+  async getAllStudyGroups(
+    paginationDto: PaginationDto,
+  ): Promise<PaginationResult<StudyGroup> | StudyGroup[]> {
     const { page, limit } = paginationDto;
     const [items, total] = await this.studyGroupRepository.findAndCount({
       skip: (page - 1) * limit,
@@ -32,12 +79,27 @@ export class StudyGroupService {
       order: {
         id: 'DESC',
       },
-      relations: [
-        'semester',
-        'academic_year',
-        'groupStudents',
-        'groupStudents.student',
-      ],
+      relations: ['semester', 'academic_year', 'subject', 'teacher'],
+      select: {
+        id: true, // Chọn thuộc tính id của StudyGroup
+        name: true, // Chọn thuộc tính name của StudyGroup
+        semester: {
+          id: true, // Chọn thuộc tính id của semester
+          name: true, // Chọn thuộc tính name của semester
+        },
+        academic_year: {
+          id: true, // Chọn thuộc tính id của academic_year
+          start_year: true, // Chọn thuộc tính year của academic_year
+        },
+        subject: {
+          id: true, // Chọn thuộc tính id của subject
+          name: true, // Chọn thuộc tính name của subject
+        },
+        teacher: {
+          id: true, // Chọn thuộc tính id của teacher
+          fullname: true, // Chọn thuộc tính name của teacher
+        },
+      },
     });
 
     return {
@@ -82,7 +144,6 @@ export class StudyGroupService {
       throw new Error('Academic year not found, cannot create study group');
     }
 
-    // Add await here
     const semester = await this.semesterRepository.findOne({
       where: {
         id: studyGroupDto.semester_id,
@@ -115,5 +176,73 @@ export class StudyGroupService {
     });
 
     return await this.studyGroupRepository.save(studyGroup);
+  }
+
+  // async joinStudyGroup(inviteCode: string, studentId: number) {
+  //   const studyGroup = await this.studyGroupRepository.findOne({
+  //     where: {
+  //       invite_code: inviteCode,
+  //     },
+  //     relations: ['groupStudents', 'groupStudents.student'],
+  //   });
+
+  //   if (!studyGroup) {
+  //     throw new Error('Study group not found');
+  //   }
+
+  //   const student = await this.userRepository.findOne({
+  //     where: {
+  //       id: studentId,
+  //     },
+  //   });
+
+  //   if (!student) {
+  //     throw new Error('Student not found');
+  //   }
+
+  //   const isStudentInGroup = studyGroup.groupStudents.some(
+  //     (groupStudent) => groupStudent.student.id === student.id,
+  //   );
+
+  //   if (isStudentInGroup) {
+  //     throw new Error('Student is already in the study group');
+  //   }
+
+  //   studyGroup.groupStudents.push(student);
+
+  //   return await this.studyGroupRepository.save(studyGroup);
+  // }
+
+  async deleteStudyGroup(id: number) {
+    const studyGroup = await this.studyGroupRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!studyGroup) {
+      throw new Error('Study group not found');
+    }
+    return await this.studyGroupRepository.remove(studyGroup);
+  }
+
+  async getStudyGroupByInviteCode(inviteCode: string) {
+    return await this.studyGroupRepository.findOne({
+      where: {
+        invite_code: inviteCode,
+      },
+      relations: ['groupStudents', 'groupStudents.student'],
+    });
+  }
+
+  async getStudyGroupByTeacherId(teacherId: number) {
+    return await this.studyGroupRepository.find({
+      where: {
+        teacher: {
+          id: teacherId,
+        },
+      },
+      relations: ['group_students'],
+    });
   }
 }

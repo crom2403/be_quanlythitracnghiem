@@ -12,10 +12,14 @@ export class TeacherSubject {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, (teacher) => teacher.teacher_subjects, {
+    nullable: false,
+  })
   teacher: User;
 
-  @ManyToOne(() => Subject)
+  @ManyToOne(() => Subject, (subject) => subject.teacher_subjects, {
+    nullable: false,
+  })
   subject: Subject;
 
   @CreateDateColumn()

@@ -1,7 +1,9 @@
+import { TeacherSubject } from 'src/modules/subject/entities/teacher-subject.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -25,6 +27,13 @@ export class Subject {
 
   @Column({ default: 0 })
   practical_hours: number;
+
+  @OneToMany(
+    () => TeacherSubject,
+    (teacher_subject) => teacher_subject.subject,
+    { cascade: true },
+  )
+  teacher_subjects: TeacherSubject[];
 
   @CreateDateColumn()
   created_at: Date;

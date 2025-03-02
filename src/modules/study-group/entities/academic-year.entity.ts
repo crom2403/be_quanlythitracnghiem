@@ -8,12 +8,11 @@ export class AcademicYear {
   id: number;
 
   @Column()
-  @IsDate()
-  start_date: Date;
+  start_year: string;
 
   @Column()
   @IsDate()
-  end_date: Date;
+  end_year: string;
 
   @OneToMany(() => StudyGroup, (study_group) => study_group.academic_year)
   study_groups: StudyGroup[];
