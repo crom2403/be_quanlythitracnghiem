@@ -41,6 +41,8 @@ async function bootstrap() {
     .setTitle('quanlythitracngiem API documentation')
     .setDescription('')
     .setVersion('1.0')
+    .addBearerAuth() // Thêm Bearer Auth vào Swagger UI
+    // .addSecurityRequirements('public', [])
     .addTag('quanlythitracnghiem')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);

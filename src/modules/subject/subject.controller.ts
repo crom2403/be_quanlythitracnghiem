@@ -10,12 +10,13 @@ import {
   Query,
   Request,
 } from '@nestjs/common';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { CreateAssignmentDto } from 'src/modules/subject/dto/create-assignment.dto';
 import { CreateSubjectDto } from 'src/modules/subject/dto/create-subject.dto';
 import { SubjectService } from 'src/modules/subject/subject.service';
 
+@ApiBearerAuth() // Yêu cầu Swagger sử dụng Bearer Token cho tất cả API trong controller này
 @Controller('subject')
 export class SubjectController {
   constructor(private readonly subjectService: SubjectService) {}
@@ -42,7 +43,6 @@ export class SubjectController {
     @Body() createAssignmentDto: CreateAssignmentDto[],
   ) {
     const userId = req.user?.sub.userId;
-    console.log('userId', userId);
 
     return await this.subjectService.createAssignment(
       userId,

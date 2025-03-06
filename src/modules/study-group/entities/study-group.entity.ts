@@ -1,3 +1,4 @@
+import { ExamStudyGroup } from 'src/modules/exam/entities/exams-study-groups.entity';
 import { AcademicYear } from 'src/modules/study-group/entities/academic-year.entity';
 import { GroupStudent } from 'src/modules/study-group/entities/group-student.entity';
 import { Semester } from 'src/modules/study-group/entities/semester.entity';
@@ -43,6 +44,15 @@ export class StudyGroup {
     cascade: true,
   })
   group_students: GroupStudent;
+
+  @OneToMany(
+    () => ExamStudyGroup,
+    (exam_study_group) => exam_study_group.study_group,
+    {
+      cascade: true,
+    },
+  )
+  exam_study_group: ExamStudyGroup;
 
   @CreateDateColumn()
   created_at: Date;

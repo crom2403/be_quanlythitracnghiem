@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Public } from 'src/modules/auth/decorators/public.decorator';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
@@ -18,6 +18,7 @@ import { Role } from 'src/modules/auth/roles/roles.enum';
 import { CreateUserDto } from 'src/modules/users/dto/create-user.dto';
 import { UsersService } from 'src/modules/users/users.service';
 
+// @ApiBearerAuth() // Yêu cầu Swagger sử dụng Bearer Token cho tất cả API trong controller này
 @Controller('users')
 // @UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
