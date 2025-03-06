@@ -9,6 +9,7 @@ import { ExamConfig } from 'src/modules/exam/entities/exam-config.entity';
 import { ExamChapter } from 'src/modules/exam/entities/exam-chapter.entity';
 import { ExamStudyGroup } from 'src/modules/exam/entities/exams-study-groups.entity';
 import { User } from 'src/modules/users/entities/user.entity';
+import { Question } from 'src/modules/content/entities/question.entity';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { User } from 'src/modules/users/entities/user.entity';
       ExamQuestion,
       ExamConfig,
       ExamChapter,
+      Question,
     ]),
   ],
   controllers: [ExamController],

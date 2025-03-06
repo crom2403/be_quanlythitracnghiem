@@ -1,3 +1,4 @@
+import { AddQuestionToExamDto } from './dto/add-question-to-exam.dto';
 import {
   CreateExamManualDto,
   ExamConfigsType,
@@ -10,6 +11,8 @@ import { User } from 'src/modules/users/entities/user.entity';
 import { ExamConfig } from 'src/modules/exam/entities/exam-config.entity';
 import { StudyGroup } from 'src/modules/study-group/entities/study-group.entity';
 import { ExamStudyGroup } from 'src/modules/exam/entities/exams-study-groups.entity';
+import { Question } from 'src/modules/content/entities/question.entity';
+import { ExamQuestion } from 'src/modules/exam/entities/exam-question.entity';
 
 @Injectable()
 export class ExamService {
@@ -24,6 +27,10 @@ export class ExamService {
     private studyGroupRepository: Repository<StudyGroup>,
     @InjectRepository(ExamStudyGroup)
     private examStudyGroupRepository: Repository<ExamStudyGroup>,
+    @InjectRepository(Question)
+    private questionRepository: Repository<Question>,
+    @InjectRepository(ExamQuestion)
+    private examQuestionRepository: Repository<ExamQuestion>,
   ) {}
 
   async createExamManual(
@@ -83,5 +90,45 @@ export class ExamService {
     );
 
     return exam;
+  }
+
+  // Hãy tạo hàm addQuestionToExam
+  async addQuestionToExam(
+    examId: number,
+    addQuestionToExamDto: AddQuestionToExamDto,
+  ) {
+    const { list_question } = addQuestionToExamDto;
+    const exam = await this.examRepository.findOne({
+      where: { id: examId },
+      relations: ['exam_questions'],
+    });
+    if (!exam) {
+      throw new Error(`Exam with ID ${examId} not found`);
+    }
+    // Xóa các exam_questions cũ
+    await this.examQuestionRepository.remove(exam.exam_questions);
+
+    if (list_question.length === 0) {
+      throw new Error('List question is empty');
+    }
+    // Tạo các exam_questions mới
+    await Promise.all(
+      list_question?.map(async (question) => {
+        const { question_id } = question;
+        const questionDb = await this.questionRepository.findOne({
+          where: { id: question_id },
+        });
+        if (!questionDb) {
+          throw new Error(`Question with ID ${question_id} not found`);
+        }
+        const examQuestion = this.examQuestionRepository.create({
+          ...question,
+          question: questionDb,
+          exam,
+        });
+        await this.examQuestionRepository.save(examQuestion);
+      }),
+    );
+    return 'Add question to exam successfully';
   }
 }
