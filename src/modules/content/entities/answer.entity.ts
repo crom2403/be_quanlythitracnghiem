@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Exclude } from 'class-transformer';
-import { Question } from 'src/modules/content/entities/question.entity';
+import { Question } from './question.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
