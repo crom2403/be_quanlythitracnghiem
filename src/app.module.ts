@@ -1,21 +1,19 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { getTypeOrmConfig } from './config/typeorm.config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { PermissionsModule } from './modules/permissions/permissions.module';
-import { SubjectModule } from './modules/subject/subject.module';
-import { NotificationModule } from './modules/notification/notification.module';
-import { StudyGroupModule } from './modules/study-group/study-group.module';
-import { ExamModule } from './modules/exam/exam.module';
-import { ContentModule } from './modules/content/content.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { UsersModule } from 'src/modules/users/users.module';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
-import { TokenInterceptor } from 'src/modules/auth/interceptors/token.interceptor';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { getTypeOrmConfig } from './config';
+import { SubjectModule } from './modules/subject';
+import { StudyGroupModule } from './modules/study-group';
+import { ExamModule } from './modules/exam';
+import { ContentModule } from './modules/content';
+import { AuthModule } from './modules/auth';
+import { UsersModule } from './modules/users';
+import { PermissionsModule } from './modules/permissions';
+import { NotificationModule } from './modules/notification';
 
+import { JwtAuthGuard } from './modules/auth/guards';
+import { TokenInterceptor } from './modules/auth/interceptors';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -35,9 +33,8 @@ import { TokenInterceptor } from 'src/modules/auth/interceptors/token.intercepto
     AuthModule,
     UsersModule,
   ],
-  controllers: [AppController],
+
   providers: [
-    AppService,
     // JWT Guard global
     {
       provide: APP_GUARD,

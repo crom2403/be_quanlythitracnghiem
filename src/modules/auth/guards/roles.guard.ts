@@ -1,8 +1,8 @@
 // Guard kiểm tra quyền truy cập dựa trên vai trò
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Role } from '../roles/roles.enum';
-import { ROLES_KEY } from '../decorators/roles.decorator';
+import { RoleType } from '../enums';
+import { ROLES_KEY } from '../decorators';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -10,10 +10,10 @@ export class RolesGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     // Lấy danh sách các vai trò được yêu cầu từ decorator
-    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredRoles = this.reflector.getAllAndOverride<RoleType[]>(
+      ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     // Nếu route không yêu cầu vai trò cụ thể, cho phép truy cập
     if (!requiredRoles) {

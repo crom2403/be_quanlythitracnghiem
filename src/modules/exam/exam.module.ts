@@ -1,31 +1,39 @@
 import { Module } from '@nestjs/common';
-import { ExamController } from './exam.controller';
-import { ExamService } from './exam.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Exam } from 'src/modules/exam/entities/exam.entity';
-import { StudyGroup } from 'src/modules/study-group/entities/study-group.entity';
-import { ExamQuestion } from 'src/modules/exam/entities/exam-question.entity';
-import { ExamConfig } from 'src/modules/exam/entities/exam-config.entity';
-import { ExamChapter } from 'src/modules/exam/entities/exam-chapter.entity';
-import { ExamStudyGroup } from 'src/modules/exam/entities/exams-study-groups.entity';
-import { User } from 'src/modules/users/entities/user.entity';
-import { Question } from 'src/modules/content/entities/question.entity';
+import { ExamController, ExamAttemptController } from './controllers';
+import { ExamService, ExamAttemptService } from './services';
+import {
+  AttemptAnswer,
+  ExamAttempt,
+  ExamChapter,
+  ExamConfig,
+  ExamQuestion,
+  Exam,
+  ExamStudyGroup,
+} from './entities';
+import { StudyGroupModule } from 'src/modules/study-group';
+import { UsersModule } from 'src/modules/users';
+import { SubjectModule } from 'src/modules/subject';
+import { ContentModule } from 'src/modules/content';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      User,
-      Exam,
-      StudyGroup,
-      ExamStudyGroup,
-      ExamQuestion,
-      ExamConfig,
+      AttemptAnswer,
+      ExamAttempt,
       ExamChapter,
-      Question,
+      ExamConfig,
+      ExamQuestion,
+      Exam,
+      ExamStudyGroup,
     ]),
+    StudyGroupModule,
+    SubjectModule,
+    UsersModule,
+    ContentModule,
   ],
-  controllers: [ExamController],
-  providers: [ExamService],
-  exports: [ExamService],
+  controllers: [ExamController, ExamAttemptController],
+  providers: [ExamService, ExamAttemptService],
+  exports: [TypeOrmModule, ExamService, ExamAttemptService],
 })
 export class ExamModule {}

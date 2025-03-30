@@ -1,0 +1,31 @@
+import { Body, Controller, Get, Param, Post, Request } from '@nestjs/common';
+import { CreateExamManualDto, AddQuestionToExamDto } from '../dtos';
+import { ExamService } from '../services';
+
+@Controller('exam')
+export class ExamController {
+  constructor(private readonly examService: ExamService) {}
+
+  @Get('/get-all-exams-of-student')
+  async getAllExamOfStudent(@Request() req: any) {
+    const userId = req.user?.sub.userId;
+    return this.examService.getAddExamOfStudent(userId);
+  }
+
+  @Post('/create-manual')
+  async createExamManual(
+    @Request() req: any,
+    @Body() createExamManualDto: CreateExamManualDto,
+  ) {
+    const userId = req.user?.sub.userId;
+    return this.examService.createExamManual(userId, createExamManualDto);
+  }
+
+  @Post('/add-question-to-exam/:examId')
+  async addQuestionToExam(
+    @Param('examId') examId: string,
+    @Body() addQuestionToExamDto: AddQuestionToExamDto,
+  ) {
+    return this.examService.addQuestionToExam(+examId, addQuestionToExamDto);
+  }
+}

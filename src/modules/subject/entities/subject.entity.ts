@@ -1,4 +1,4 @@
-import { TeacherSubject } from 'src/modules/subject/entities/teacher-subject.entity';
+import { TeacherSubject } from './teacher-subject.entity';
 import {
   Column,
   CreateDateColumn,

@@ -1,9 +1,7 @@
-import { ExamStudyGroup } from 'src/modules/exam/entities/exams-study-groups.entity';
-import { AcademicYear } from 'src/modules/study-group/entities/academic-year.entity';
-import { GroupStudent } from 'src/modules/study-group/entities/group-student.entity';
-import { Semester } from 'src/modules/study-group/entities/semester.entity';
-import { Subject } from 'src/modules/subject/entities/subject.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { AcademicYear, Semester, GroupStudent } from '../entities';
+import { ExamStudyGroup } from 'src/modules/exam/entities';
+import { Subject } from 'src/modules/subject/entities';
+import { User } from 'src/modules/users/entities';
 import {
   Column,
   CreateDateColumn,

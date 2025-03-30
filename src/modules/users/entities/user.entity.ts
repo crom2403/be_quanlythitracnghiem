@@ -1,7 +1,7 @@
 import { Exclude } from 'class-transformer';
-import { GroupStudent } from 'src/modules/study-group/entities/group-student.entity';
-import { TeacherSubject } from 'src/modules/subject/entities/teacher-subject.entity';
-import { Role } from 'src/modules/users/entities/role.entity';
+import { GroupStudent } from 'src/modules/study-group/entities';
+import { TeacherSubject } from 'src/modules/subject/entities';
+import { Role } from './role.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,

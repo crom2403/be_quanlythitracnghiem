@@ -1,6 +1,6 @@
-import { Answer } from 'src/modules/content/entities/answer.entity';
-import { Chapter } from 'src/modules/content/entities/chapter.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { Answer } from './answer.entity';
+import { Chapter } from './chapter.entity';
+import { User } from 'src/modules/users/entities';
 import {
   Column,
   CreateDateColumn,

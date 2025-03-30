@@ -1,6 +1,5 @@
-import { Answer } from 'src/modules/content/entities/answer.entity';
-import { Question } from 'src/modules/content/entities/question.entity';
-import { ExamAttempt } from 'src/modules/exam/entities/exam-attempt.entity';
+import { Answer, Question } from 'src/modules/content/entities';
+import { ExamAttempt } from '../entities';
 import {
   CreateDateColumn,
   Entity,

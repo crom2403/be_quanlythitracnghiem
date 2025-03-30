@@ -1,5 +1,5 @@
-import { Chapter } from 'src/modules/content/entities/chapter.entity';
-import { Exam } from 'src/modules/exam/entities/exam.entity';
+import { Chapter } from 'src/modules/content/entities';
+import { Exam } from '../entities';
 import { ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 export class ExamChapter {

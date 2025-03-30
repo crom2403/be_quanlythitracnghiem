@@ -1,5 +1,5 @@
-import { Subject } from 'src/modules/subject/entities/subject.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { Subject } from './subject.entity';
+import { User } from 'src/modules/users/entities';
 import {
   CreateDateColumn,
   Entity,

@@ -1,8 +1,6 @@
-import { ExamConfig } from 'src/modules/exam/entities/exam-config.entity';
-import { ExamQuestion } from 'src/modules/exam/entities/exam-question.entity';
-import { ExamStudyGroup } from 'src/modules/exam/entities/exams-study-groups.entity';
-import { StudyGroup } from 'src/modules/study-group/entities/study-group.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { ExamConfig, ExamStudyGroup, ExamQuestion } from '../entities';
+import { StudyGroup } from 'src/modules/study-group/entities';
+import { User } from 'src/modules/users/entities';
 import {
   Column,
   CreateDateColumn,

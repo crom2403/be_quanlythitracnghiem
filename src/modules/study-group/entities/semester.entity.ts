@@ -1,4 +1,4 @@
-import { StudyGroup } from 'src/modules/study-group/entities/study-group.entity';
+import { StudyGroup } from 'src/modules/study-group/entities';
 import {
   Column,
   CreateDateColumn,

@@ -1,4 +1,4 @@
-import { Exam } from 'src/modules/exam/entities/exam.entity';
+import { Exam } from '../entities';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()

@@ -1,5 +1,5 @@
-import { Exam } from 'src/modules/exam/entities/exam.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { Exam } from '../entities';
+import { User } from 'src/modules/users/entities';
 import {
   Column,
   CreateDateColumn,
