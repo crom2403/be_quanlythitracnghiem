@@ -134,7 +134,7 @@ export class UsersService {
       email: createUserDto.email,
       fullname: createUserDto.fullname,
       gender: createUserDto.gender as 'Nam' | 'Nữ',
-      birthday: new Date(createUserDto.birthday),
+      birthday: createUserDto.birthday,
       password: hashedPassword,
       status: createUserDto.status,
       role: role,

@@ -130,22 +130,76 @@ export class ExamService {
     );
     return 'Add question to exam successfully';
   }
+  private checkTypeOfExam(startTime: Date, endTime: Date) {
+    const now = new Date();
+    if (startTime > now) {
+      return 'not_open';
+    }
+    if (startTime < now && endTime > now) {
+      return 'opened';
+    }
+    if (endTime < now) {
+      return 'closed';
+    }
+  }
 
-  async getAddExamOfStudent(studentId: number) {
+  public formatDateTime(isoDate: string): string {
+    const date = new Date(isoDate);
+
+    // Lấy các thành phần ngày, tháng, giờ, phút
+    const day = String(date.getUTCDate()).padStart(2, '0'); // dd
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // mm (tháng bắt đầu từ 0 nên +1)
+    const year = date.getUTCFullYear(); // yyyy
+
+    let hours = date.getUTCHours();
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    const period = hours >= 12 ? 'PM' : 'AM';
+
+    // Chuyển đổi sang định dạng 12 giờ
+    hours = hours % 12 || 12; // Nếu giờ là 0 hoặc 12, hiển thị là 12
+    const formattedHours = String(hours).padStart(2, '0');
+
+    // Ghép chuỗi kết quả
+    return `${day}/${month}/${year}, ${formattedHours}:${minutes} ${period}`;
+  }
+
+  async getAllExamOfStudent(studentId: number) {
     const user = await this.userRepository.findOne({
       where: { id: studentId },
     });
 
-    const listStudyGroupOfStudent =
-      await this.studyGroupService.getStudyGroupByStudentId(user.id);
-    console.log('listStudyGroupOfStudent', listStudyGroupOfStudent);
+    // Kiểm tra nếu không tìm thấy user
     if (!user) {
       throw new Error('User not found');
     }
-    const exams = await this.examRepository.find({
-      where: { created_by: user },
-      relations: ['exam_configs', 'exam_questions'],
-    });
-    return exams;
+
+    const listStudyGroupOfStudent =
+      await this.studyGroupService.getStudyGroupByStudentId(user.id);
+    const listIdsStudentGroup = listStudyGroupOfStudent.map(
+      (studyGroup) => studyGroup.id,
+    );
+
+    const listExamOfStudent =
+      await this.studyGroupService.getListExamOfStudyGroups(
+        listIdsStudentGroup,
+      );
+
+    // Sửa logic map để xử lý mảng exam_study_group
+    const result = listExamOfStudent.flatMap((studyGroup) =>
+      studyGroup.exam_study_group.map((examStudyGroup) => ({
+        id: studyGroup.id,
+        exam_id: examStudyGroup.exam.id,
+        name_exam: examStudyGroup.exam.name,
+        status: this.checkTypeOfExam(
+          new Date(examStudyGroup.exam.start_time),
+          new Date(examStudyGroup.exam.end_time),
+        ),
+        start_time: this.formatDateTime(examStudyGroup.exam.start_time),
+        end_time: this.formatDateTime(examStudyGroup.exam.end_time),
+        group_student_name: `${studyGroup.subject.name} - NH${studyGroup.academic_year.start_year} - ${studyGroup.semester.name}`,
+      })),
+    );
+
+    return result;
   }
 }

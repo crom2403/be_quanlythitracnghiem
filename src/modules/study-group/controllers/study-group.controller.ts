@@ -8,7 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { PaginationDto } from 'src/common/dtos';
-import { CreateStudyGroupDto } from '../dtos';
+import { AddStudentManualDto, CreateStudyGroupDto } from '../dtos';
 import { StudyGroupService } from '../services';
 
 @Controller('study-group')
@@ -33,5 +33,10 @@ export class StudyGroupController {
   @Delete(':id')
   async deleteStudyGroup(@Param('id') id: string) {
     return this.studyGroupService.deleteStudyGroup(+id);
+  }
+
+  @Post('manual')
+  async addStudentManual(@Body() body: AddStudentManualDto) {
+    return this.studyGroupService.addStudentManual(body);
   }
 }

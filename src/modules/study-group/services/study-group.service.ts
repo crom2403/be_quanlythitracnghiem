@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dtos';
 import { PaginationResult } from 'src/common/interfaces';
-import { CreateStudyGroupDto } from '../dtos';
-import { StudyGroup, Semester, AcademicYear } from '../entities';
+import { AddStudentManualDto, CreateStudyGroupDto } from '../dtos';
+import { StudyGroup, Semester, AcademicYear, GroupStudent } from '../entities';
 import { Subject } from 'src/modules/subject/entities';
 import { User } from 'src/modules/users/entities';
+import { UsersService } from 'src/modules/users';
 
 @Injectable()
 export class StudyGroupService {
@@ -15,12 +16,16 @@ export class StudyGroupService {
     private userRepository: Repository<User>,
     @InjectRepository(StudyGroup)
     private studyGroupRepository: Repository<StudyGroup>,
+    @InjectRepository(GroupStudent)
+    private groupStudentRepository: Repository<GroupStudent>,
     @InjectRepository(Semester)
     private semesterRepository: Repository<Semester>,
     @InjectRepository(AcademicYear)
     private academicYearRepository: Repository<AcademicYear>,
     @InjectRepository(Subject)
     private subjectRepository: Repository<Subject>,
+
+    private readonly userService: UsersService,
   ) {}
 
   async onModuleInit() {
@@ -176,41 +181,6 @@ export class StudyGroupService {
     return await this.studyGroupRepository.save(studyGroup);
   }
 
-  // async joinStudyGroup(inviteCode: string, studentId: number) {
-  //   const studyGroup = await this.studyGroupRepository.findOne({
-  //     where: {
-  //       invite_code: inviteCode,
-  //     },
-  //     relations: ['groupStudents', 'groupStudents.student'],
-  //   });
-
-  //   if (!studyGroup) {
-  //     throw new Error('Study group not found');
-  //   }
-
-  //   const student = await this.userRepository.findOne({
-  //     where: {
-  //       id: studentId,
-  //     },
-  //   });
-
-  //   if (!student) {
-  //     throw new Error('Student not found');
-  //   }
-
-  //   const isStudentInGroup = studyGroup.groupStudents.some(
-  //     (groupStudent) => groupStudent.student.id === student.id,
-  //   );
-
-  //   if (isStudentInGroup) {
-  //     throw new Error('Student is already in the study group');
-  //   }
-
-  //   studyGroup.groupStudents.push(student);
-
-  //   return await this.studyGroupRepository.save(studyGroup);
-  // }
-
   async deleteStudyGroup(id: number) {
     const studyGroup = await this.studyGroupRepository.findOne({
       where: {
@@ -253,7 +223,131 @@ export class StudyGroupService {
           },
         },
       },
-      relations: ['group_students'],
+      relations: ['group_students', 'exam_study_group'],
     });
+  }
+
+  // async addStudentInviteCode(inviteCode: string, studentId: number) {
+  //   const studyGroup = await this.studyGroupRepository.findOne({
+  //     where: {
+  //       invite_code: inviteCode,
+  //     },
+  //     relations: ['groupStudents', 'groupStudents.student'],
+  //   });
+
+  //   if (!studyGroup) {
+  //     throw new Error('Study group not found');
+  //   }
+
+  //   const student = await this.userRepository.findOne({
+  //     where: {
+  //       id: studentId,
+  //     },
+  //   });
+
+  //   if (!student) {
+  //     throw new Error('Student not found');
+  //   }
+
+  //   const isStudentInGroup = studyGroup.groupStudents.some(
+  //     (groupStudent) => groupStudent.student.id === student.id,
+  //   );
+
+  //   if (isStudentInGroup) {
+  //     throw new Error('Student is already in the study group');
+  //   }
+
+  //   studyGroup.groupStudents.push(student);
+
+  //   return await this.studyGroupRepository.save(studyGroup);
+  // }
+
+  async addStudentManual(body: AddStudentManualDto): Promise<GroupStudent> {
+    console.log(body);
+    const student = await this.userRepository.findOne({
+      where: {
+        student_code: body.student_code,
+      },
+    });
+
+    if (student) {
+      throw new Error(`Student với mã ${body.student_code} đã tồn tại`);
+    }
+
+    const newStudent = await this.userService.create(body);
+
+    const studyGroup = await this.studyGroupRepository.findOne({
+      where: {
+        id: +body.studyGroupId,
+      },
+    });
+    if (!studyGroup) {
+      throw new Error('Study group not found');
+    }
+
+    const groupStudent = this.groupStudentRepository.create({
+      study_group: studyGroup,
+      student: newStudent,
+    });
+
+    return await this.groupStudentRepository.save(groupStudent);
+  }
+
+  async addStudentAutp() {
+    return null;
+  }
+
+  async getAllGroupsOfStudent(studentId: number): Promise<GroupStudent[] | []> {
+    return await this.groupStudentRepository.find({
+      where: {
+        student: {
+          id: studentId,
+        },
+      },
+      relations: ['group_students', 'academic_year', 'semester'],
+    });
+  }
+
+  async getListExamOfStudyGroups(listIdStudyGroup: number[]) {
+    const result = await this.studyGroupRepository.find({
+      where: {
+        id: In(listIdStudyGroup),
+      },
+      relations: [
+        'exam_study_group',
+        'semester',
+        'academic_year',
+        'subject',
+        'exam_study_group.exam',
+      ],
+      select: {
+        id: true,
+        name: true,
+        note: true,
+        exam_study_group: {
+          id: true,
+          exam: {
+            id: true,
+            name: true,
+            start_time: true,
+            end_time: true,
+          },
+        },
+        subject: {
+          id: true,
+          name: true,
+        },
+        semester: {
+          id: true,
+          name: true,
+        },
+        academic_year: {
+          id: true,
+          start_year: true,
+          end_year: true,
+        },
+      },
+    });
+    return result;
   }
 }

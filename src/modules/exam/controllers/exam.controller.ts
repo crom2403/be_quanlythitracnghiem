@@ -9,7 +9,7 @@ export class ExamController {
   @Get('/get-all-exams-of-student')
   async getAllExamOfStudent(@Request() req: any) {
     const userId = req.user?.sub.userId;
-    return this.examService.getAddExamOfStudent(userId);
+    return this.examService.getAllExamOfStudent(20);
   }
 
   @Post('/create-manual')

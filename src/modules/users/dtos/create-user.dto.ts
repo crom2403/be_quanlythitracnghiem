@@ -3,6 +3,7 @@ import {
   IsBoolean,
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MinLength,
 } from 'class-validator';
@@ -12,9 +13,9 @@ export class CreateUserDto {
   @ApiProperty({ example: 'DH52101234' })
   student_code: string;
 
-  @IsNotEmpty()
   @IsEmail()
   @ApiProperty({ example: 'user@example.com' })
+  @IsOptional()
   email: string;
 
   @IsNotEmpty()
@@ -22,28 +23,27 @@ export class CreateUserDto {
   @ApiProperty({ example: 'Nguyễn Văn A' })
   fullname: string;
 
-  @IsNotEmpty()
   @IsString()
   @ApiProperty({ example: 'Nam' })
+  @IsOptional()
   gender: string;
 
-  @IsNotEmpty()
   @IsString()
   @ApiProperty({ example: '2002-03-24' })
+  @IsOptional()
   birthday: string;
 
-  @IsNotEmpty()
   @IsString()
   @ApiProperty({ example: 'student' })
-  role: string;
+  @IsOptional()
+  role: string = 'student';
 
   @IsNotEmpty()
-  @IsString({})
   @MinLength(6, { message: 'Mật khẩu tối thiểu 6 ký tự' })
   @ApiProperty({ example: '123456' })
   password: string;
 
-  @IsNotEmpty()
   @IsBoolean()
+  @IsOptional()
   status: boolean;
 }

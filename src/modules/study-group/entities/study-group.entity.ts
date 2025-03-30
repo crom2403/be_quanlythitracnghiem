@@ -41,7 +41,7 @@ export class StudyGroup {
   @OneToMany(() => GroupStudent, (group_student) => group_student.study_group, {
     cascade: true,
   })
-  group_students: GroupStudent;
+  group_students: GroupStudent[];
 
   @OneToMany(
     () => ExamStudyGroup,
@@ -50,7 +50,7 @@ export class StudyGroup {
       cascade: true,
     },
   )
-  exam_study_group: ExamStudyGroup;
+  exam_study_group: ExamStudyGroup[];
 
   @CreateDateColumn()
   created_at: Date;

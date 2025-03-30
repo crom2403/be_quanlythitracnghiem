@@ -8,6 +8,7 @@ import {
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dtos';
@@ -16,10 +17,12 @@ import { JwtAuthGuard } from 'src/modules/auth/guards';
 import { RoleType } from 'src/modules/auth/enums';
 import { CreateUserDto } from '../dtos';
 import { UsersService } from '../services';
+import { ClassSerializerInterceptor } from '@nestjs/common';
 
 // @ApiBearerAuth() // Yêu cầu Swagger sử dụng Bearer Token cho tất cả API trong controller này
 @Controller('users')
 // @UseGuards(JwtAuthGuard, RolesGuard)
+@UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
   @Get()
