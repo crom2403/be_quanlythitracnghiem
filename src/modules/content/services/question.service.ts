@@ -72,9 +72,7 @@ export class QuestionService {
     }
 
     const listAnswer = createQuestionDto.answers;
-    console.log('listAnswer', listAnswer);
     if (!Array.isArray(listAnswer) || listAnswer.length === 0) {
-      // Sửa listAnswer.length <= 0 thành listAnswer.length === 0
       throw new BadRequestException('Answers are required');
     }
 
@@ -90,10 +88,12 @@ export class QuestionService {
       // Lưu các câu trả lời với reference tới câu hỏi
       const savedAnswers = await Promise.all(
         listAnswer?.map(async (el: any) => {
-          return await this.answerRepository.save({
-            ...el,
-            questionId: question.id, // Thêm reference đến question
-          });
+          const newAnswer = new Answer();
+          newAnswer.content = el.content;
+          newAnswer.is_correct = el.is_correct;
+          newAnswer.order_index = el.order_index;
+          newAnswer.question = question;
+          return await this.answerRepository.save(newAnswer);
         }),
       );
 

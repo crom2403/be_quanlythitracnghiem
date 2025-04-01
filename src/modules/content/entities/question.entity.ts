@@ -30,7 +30,7 @@ export class Question {
   @ManyToOne(() => User)
   created_by: User;
 
-  @OneToMany(() => Answer, (answer) => answer.questionId)
+  @OneToMany(() => Answer, (answer) => answer.question)
   answers: Answer[];
 
   @CreateDateColumn()

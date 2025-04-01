@@ -1,4 +1,9 @@
-import { ExamConfig, ExamStudyGroup, ExamQuestion } from '../entities';
+import {
+  ExamConfig,
+  ExamStudyGroup,
+  ExamQuestion,
+  ExamAttempt,
+} from '../entities';
 import { StudyGroup } from 'src/modules/study-group/entities';
 import { User } from 'src/modules/users/entities';
 import {
@@ -60,6 +65,9 @@ export class Exam {
 
   @OneToMany(() => ExamQuestion, (exam_question) => exam_question.exam)
   exam_questions: ExamQuestion[];
+
+  @OneToMany(() => ExamAttempt, (exam_attempt) => exam_attempt.exam)
+  exam_attempts: ExamAttempt[];
 
   @CreateDateColumn()
   created_at: Date;

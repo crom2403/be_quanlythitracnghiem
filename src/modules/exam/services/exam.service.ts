@@ -202,4 +202,46 @@ export class ExamService {
 
     return result;
   }
+
+  async getExamById(examId: number) {
+    const exam = await this.examRepository.findOne({
+      where: { id: examId },
+      relations: [
+        'exam_questions',
+        'exam_questions.question',
+        'exam_questions.question.answers',
+      ],
+      select: {
+        id: true,
+        name: true,
+        start_time: true,
+        end_time: true,
+        duration_minutes: true,
+        is_shuffled_answer: true,
+        is_shuffled_question: true,
+        allow_review: true,
+        allow_review_point: true,
+        exam_questions: {
+          id: true,
+          order_index: true,
+          question: {
+            id: true,
+            content: true,
+            answers: {
+              id: true,
+              content: true,
+              is_correct: true,
+              order_index: true,
+            },
+          },
+        },
+      },
+    });
+
+    if (!exam) {
+      throw new Error(`Exam with ID ${examId} not found`);
+    }
+
+    return exam;
+  }
 }

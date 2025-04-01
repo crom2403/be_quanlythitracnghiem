@@ -14,12 +14,6 @@ export class ExamAttempt {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Exam)
-  exam: Exam;
-
-  @ManyToOne(() => User)
-  student: User;
-
   @Column()
   start_time: Date;
 
@@ -37,6 +31,12 @@ export class ExamAttempt {
     enum: ['in_progress', 'completed', 'auto_submitted'],
   })
   status: string;
+
+  @ManyToOne(() => Exam, (exam) => exam.exam_attempts)
+  exam: Exam;
+
+  @ManyToOne(() => User, (user) => user.exam_attempts)
+  user: User;
 
   @CreateDateColumn()
   created_at: Date;

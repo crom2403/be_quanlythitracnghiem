@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Exclude } from 'class-transformer';
 import { Question } from './question.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -7,13 +6,6 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 export class Answer {
   @PrimaryGeneratedColumn()
   id: number;
-
-  // @ManyToOne(() => Question, (question) => question.answers, {
-  //   onDelete: 'CASCADE',
-  // })
-  // @Exclude() // Đánh dấu để không serialize khi JSON.stringify()
-  @Column()
-  questionId: number;
 
   @Column('text')
   content: string;
@@ -23,4 +15,9 @@ export class Answer {
 
   @Column()
   order_index: number;
+
+  @ManyToOne(() => Question, (question) => question.answers, {
+    onDelete: 'CASCADE',
+  })
+  question: Question;
 }

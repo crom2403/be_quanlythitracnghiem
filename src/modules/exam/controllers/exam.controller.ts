@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Body, Controller, Get, Param, Post, Request } from '@nestjs/common';
 import { CreateExamManualDto, AddQuestionToExamDto } from '../dtos';
 import { ExamService } from '../services';
@@ -10,6 +11,11 @@ export class ExamController {
   async getAllExamOfStudent(@Request() req: any) {
     const userId = req.user?.sub.userId;
     return this.examService.getAllExamOfStudent(20);
+  }
+
+  @Get(':id')
+  async getExamById(@Param('id') examId: string) {
+    return this.examService.getExamById(+examId);
   }
 
   @Post('/create-manual')
