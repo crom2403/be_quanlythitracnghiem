@@ -29,3 +29,12 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test
+    - uses: actions/checkout@v4
+    - name: Install Postman CLI
+      run: |
+      curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+    - name: Login to Postman CLI
+      run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+    - name: Run API tests
+      run: |
+        postman collection run "32506681-dadd0737-d711-4ac2-90f8-caeafb2cd4a6"
