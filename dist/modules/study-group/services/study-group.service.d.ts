@@ -1,0 +1,32 @@
+import { Repository } from 'typeorm';
+import { PaginationDto } from 'src/common/dtos';
+import { PaginationResult } from 'src/common/interfaces';
+import { AddStudentManualDto, CreateStudyGroupDto } from '../dtos';
+import { StudyGroup, Semester, AcademicYear, GroupStudent } from '../entities';
+import { Subject } from 'src/modules/subject/entities';
+import { User } from 'src/modules/users/entities';
+import { UsersService } from 'src/modules/users';
+export declare class StudyGroupService {
+    private userRepository;
+    private studyGroupRepository;
+    private groupStudentRepository;
+    private semesterRepository;
+    private academicYearRepository;
+    private subjectRepository;
+    private readonly userService;
+    constructor(userRepository: Repository<User>, studyGroupRepository: Repository<StudyGroup>, groupStudentRepository: Repository<GroupStudent>, semesterRepository: Repository<Semester>, academicYearRepository: Repository<AcademicYear>, subjectRepository: Repository<Subject>, userService: UsersService);
+    onModuleInit(): Promise<void>;
+    createDefaultAcademicYear(): Promise<void>;
+    createDefaultSemester(): Promise<void>;
+    getAllStudyGroups(paginationDto: PaginationDto): Promise<PaginationResult<StudyGroup> | StudyGroup[]>;
+    getStudyGroupById(id: number): Promise<StudyGroup>;
+    createStudyGroup(studyGroupDto: CreateStudyGroupDto): Promise<StudyGroup>;
+    deleteStudyGroup(id: number): Promise<StudyGroup>;
+    getStudyGroupByInviteCode(inviteCode: string): Promise<StudyGroup>;
+    getStudyGroupByTeacherId(teacherId: number): Promise<StudyGroup[]>;
+    getStudyGroupByStudentId(studentId: number): Promise<StudyGroup[]>;
+    addStudentManual(body: AddStudentManualDto): Promise<GroupStudent>;
+    addStudentAutp(): Promise<any>;
+    getAllGroupsOfStudent(studentId: number): Promise<GroupStudent[] | []>;
+    getListExamOfStudyGroups(listIdStudyGroup: number[]): Promise<StudyGroup[]>;
+}

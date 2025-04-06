@@ -21,16 +21,13 @@ export class ExamAttempt {
   end_time: Date;
 
   @Column()
+  test_time: number;
+
+  @Column()
   score: number;
 
   @Column()
   tab_switch_count: number;
-
-  @Column({
-    type: 'enum',
-    enum: ['in_progress', 'completed', 'auto_submitted'],
-  })
-  status: string;
 
   @ManyToOne(() => Exam, (exam) => exam.exam_attempts)
   exam: Exam;
