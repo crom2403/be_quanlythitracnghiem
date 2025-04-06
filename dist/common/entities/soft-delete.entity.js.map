@@ -1,1 +1,0 @@
-{"version":3,"file":"soft-delete.entity.js","sourceRoot":"","sources":["../../../src/common/entities/soft-delete.entity.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,qCAA2C;AAC3C,+CAA2C;AAE3C,MAAsB,gBAAiB,SAAQ,wBAAU;CAGxD;AAHD,4CAGC;AADC;IADC,IAAA,0BAAgB,EAAC,EAAE,IAAI,EAAE,YAAY,EAAE,QAAQ,EAAE,IAAI,EAAE,CAAC;8BAC7C,IAAI;mDAAC"}

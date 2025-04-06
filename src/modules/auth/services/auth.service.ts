@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable prettier/prettier */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/modules/users';
@@ -27,18 +29,17 @@ export class AuthService {
       const { password, ...result } = user;
       return result;
     }
-
     return null;
   }
 
   // Login và tạo JWT token
-  async login(student_code: string, password: string) {
+  async login(student_code: string, pass: string) {
     const user = await this.usersService.findByStudentCode(student_code);
     if (!user) {
       throw new UnauthorizedException('Thông tin không hợp lệ');
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(pass, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Mật khẩu không hợp lệ');
     }
@@ -46,7 +47,12 @@ export class AuthService {
     const tokens = await this.getTokens(user.id, user.student_code);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
 
-    return tokens;
+    const { password, created_at, updated_at, ...result } = user;
+
+    return {
+      ...result,
+      ...tokens,
+    };
   }
   // Xử lý refresh token
   // - Kiểm tra user có tồn tại và có refresh token không
