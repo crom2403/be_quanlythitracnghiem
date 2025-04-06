@@ -204,14 +204,65 @@ export class StudyGroupService {
   }
 
   async getStudyGroupByTeacherId(teacherId: number) {
-    return await this.studyGroupRepository.find({
-      where: {
-        teacher: {
-          id: teacherId,
-        },
+    // Bước 1: Lấy dữ liệu từ database
+    const studyGroups = await this.studyGroupRepository
+      .createQueryBuilder('studyGroup')
+      .leftJoinAndSelect('studyGroup.group_students', 'group_students')
+      .leftJoinAndSelect('studyGroup.semester', 'semester')
+      .leftJoinAndSelect('studyGroup.academic_year', 'academic_year')
+      .leftJoinAndSelect('studyGroup.subject', 'subject') // Giả sử có quan hệ với subject
+      .where('studyGroup.teacherId = :teacherId', { teacherId })
+      .getMany();
+
+    // Bước 2: Nhóm dữ liệu theo subject, academic_year, semester
+    const groupedData = studyGroups.reduce(
+      (acc, group) => {
+        // Tạo key duy nhất dựa trên subject.id, academic_year.id, semester.id
+        const key = `${group.subject.id}-${group.academic_year.id}-${group.semester.id}`;
+        const name = `${group.subject.public_id} - ${group.subject.name} - NH${group.academic_year.start_year} - ${group.semester.name}`;
+        // const subject = {
+        //   id: group.subject.id,
+        //   public_id: group.subject.public_id,
+        //   name: group.subject.name,
+        // };
+        // const academicYear = {
+        //   id: group.academic_year.id,
+        //   start_year: group.academic_year.start_year,
+        //   end_year: group.academic_year.end_year,
+        // };
+        // const semester = {
+        //   id: group.semester.id,
+        //   name: group.semester.name,
+        // };
+
+        // Nếu key chưa tồn tại trong accumulator, tạo một entry mới
+        if (!acc[key]) {
+          acc[key] = {
+            name,
+            // subject, // Thông tin môn học
+            // academicYear, // Thông tin năm học
+            // semester, // Thông tin học kỳ
+            studyGroups: [], // Danh sách các studyGroup
+          };
+        }
+
+        // Thêm studyGroup vào mảng tương ứng
+        acc[key].studyGroups.push({
+          id: group.id,
+          student_count: group.group_students.length, // Danh sách sinh viên
+          note: group.note,
+          // Thêm các thuộc tính khác của studyGroup nếu cần
+        });
+
+        return acc;
       },
-      relations: ['group_students'],
-    });
+      {} as Record<string, any>,
+    );
+
+    // Chuyển object thành mảng để trả về
+    const result = Object.values(groupedData);
+
+    return result;
   }
 
   async getStudyGroupByStudentId(studentId: number) {
