@@ -460,4 +460,29 @@ export class StudyGroupService {
     });
     return result;
   }
+
+  async getAllStudentOfStudyGroup(studyGroupId: number) {
+    const result = await this.groupStudentRepository.find({
+      where: {
+        study_group: {
+          id: studyGroupId,
+        },
+      },
+      relations: ['student'],
+      select: {
+        student: {
+          id: true,
+          student_code: true,
+          email: true,
+          fullname: true,
+          gender: true,
+          birthday: true,
+        },
+      },
+    });
+
+    return result?.map((item) => {
+      return { ...item.student };
+    });
+  }
 }

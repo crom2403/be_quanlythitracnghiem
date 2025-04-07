@@ -25,6 +25,11 @@ export class StudyGroupController {
     return this.studyGroupService.getStudyGroupByStudentCode(student_code);
   }
 
+  @Get('detail/:id')
+  async getAllStudentOfStudyGroup(@Param('id') id: string) {
+    return this.studyGroupService.getAllStudentOfStudyGroup(+id);
+  }
+
   @Get('teacher/:teacher_id')
   async getStudyGroupByTeacherId(@Param('teacher_id') teacher_id: string) {
     return this.studyGroupService.getStudyGroupByTeacherId(+teacher_id);
