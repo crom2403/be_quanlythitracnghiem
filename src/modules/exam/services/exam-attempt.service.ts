@@ -24,7 +24,7 @@ export class ExamAttemptService {
   async create(
     studentId: string,
     createExamAttemptDto: CreateExamAttemptDto,
-  ): Promise<string> {
+  ): Promise<any> {
     const {
       exam_id,
       list_question,
@@ -73,7 +73,10 @@ export class ExamAttemptService {
       throw new Error('Create exam attempt failed');
     }
 
-    return 'Nôp bài thi thành công';
+    return {
+      success: true,
+      message: 'Nôp bài thi thành công',
+    };
   }
 
   private calculateExamScore(
