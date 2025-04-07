@@ -265,6 +265,65 @@ export class StudyGroupService {
     return result;
   }
 
+  async getStudyGroupByStudentCode(studentCode: string) {
+    const user = await this.userRepository.findOne({
+      where: {
+        student_code: studentCode,
+      },
+    });
+
+    if (!user) {
+      throw new Error('User not found, cannot create study group');
+    }
+
+    const studyGroups = await this.studyGroupRepository.find({
+      where: {
+        group_students: {
+          student: {
+            student_code: studentCode,
+          },
+        },
+      },
+      relations: ['group_students', 'semester', 'academic_year', 'subject'],
+    });
+
+    // Bước 2: Nhóm dữ liệu theo subject, academic_year, semester
+    const groupedData = studyGroups.reduce(
+      (acc, group) => {
+        // Tạo key duy nhất dựa trên subject.id, academic_year.id, semester.id
+        const key = `${group.subject.id}-${group.academic_year.id}-${group.semester.id}`;
+        const name = `${group.subject.public_id} - ${group.subject.name} - NH${group.academic_year.start_year} - ${group.semester.name}`;
+
+        // Nếu key chưa tồn tại trong accumulator, tạo một entry mới
+        if (!acc[key]) {
+          acc[key] = {
+            name,
+            // subject, // Thông tin môn học
+            // academicYear, // Thông tin năm học
+            // semester, // Thông tin học kỳ
+            studyGroups: [], // Danh sách các studyGroup
+          };
+        }
+
+        // Thêm studyGroup vào mảng tương ứng
+        acc[key].studyGroups.push({
+          id: group.id,
+          student_count: group.group_students.length, // Danh sách sinh viên
+          note: group.note,
+          // Thêm các thuộc tính khác của studyGroup nếu cần
+        });
+
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
+
+    // Chuyển object thành mảng để trả về
+    const result = Object.values(groupedData);
+
+    return result;
+  }
+
   async getStudyGroupByStudentId(studentId: number) {
     return await this.studyGroupRepository.find({
       where: {

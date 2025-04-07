@@ -44,7 +44,11 @@ export class AuthService {
       throw new UnauthorizedException('Mật khẩu không hợp lệ');
     }
 
-    const tokens = await this.getTokens(user.id, user.student_code);
+    const tokens = await this.getTokens(
+      user.id,
+      user.student_code,
+      user.role.name,
+    );
     await this.updateRefreshToken(user.id, tokens.refreshToken);
 
     const { password, created_at, updated_at, ...result } = user;
@@ -72,7 +76,11 @@ export class AuthService {
       throw new UnauthorizedException('Access Denied');
     }
 
-    const tokens = await this.getTokens(user.id, user.student_code);
+    const tokens = await this.getTokens(
+      user.id,
+      user.student_code,
+      user.role.name,
+    );
     await this.updateRefreshToken(user.id, tokens.refreshToken);
 
     return tokens;
@@ -87,13 +95,14 @@ export class AuthService {
   // Hàm private tạo cặp token mới
   // - Access token có thời hạn 15 phút
   // - Refresh token có thời hạn 7 ngày
-  private async getTokens(userId: number, student_code: string) {
+  private async getTokens(userId: number, student_code: string, role: string) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: {
             userId,
             student_code,
+            role,
           },
         },
         {
@@ -106,6 +115,7 @@ export class AuthService {
         {
           sub: userId,
           student_code,
+          role,
         },
         {
           secret: process.env.JWT_REFRESH_SECRET,

@@ -70,7 +70,10 @@ export class UsersService {
   }
 
   async findByStudentCode(student_code: string): Promise<User> {
-    return this.userRepository.findOneBy({ student_code });
+    return this.userRepository.findOne({
+      where: { student_code },
+      relations: ['role'],
+    });
   }
 
   async findAll(paginationDto: PaginationDto): Promise<PaginationResult<User>> {
