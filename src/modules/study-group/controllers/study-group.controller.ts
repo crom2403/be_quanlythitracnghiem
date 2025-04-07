@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Query,
+  Request,
 } from '@nestjs/common';
 import { PaginationDto } from 'src/common/dtos';
 import { AddStudentManualDto, CreateStudyGroupDto } from '../dtos';
@@ -40,9 +41,26 @@ export class StudyGroupController {
     return this.studyGroupService.getStudyGroupById(+id);
   }
 
+  @Get('change-invite-code/:studyGroupId')
+  async changeInviteCode(@Param('studyGroupId') studyGroupId: string) {
+    return this.studyGroupService.changeInviteCode(+studyGroupId);
+  }
+
   @Post()
   async createStudyGroup(@Body() createStudyGroupDto: CreateStudyGroupDto) {
     return this.studyGroupService.createStudyGroup(createStudyGroupDto);
+  }
+
+  @Post('invite')
+  async addStudentInviteCode(
+    @Request() req,
+    @Body() createStudyGroupDto: { invite_code: string },
+  ) {
+    const userId = req.user?.sub.userId;
+    return this.studyGroupService.addStudentInviteCode(
+      createStudyGroupDto.invite_code,
+      +userId,
+    );
   }
 
   @Delete(':id')

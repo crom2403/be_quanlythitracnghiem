@@ -337,40 +337,75 @@ export class StudyGroupService {
     });
   }
 
-  // async addStudentInviteCode(inviteCode: string, studentId: number) {
-  //   const studyGroup = await this.studyGroupRepository.findOne({
-  //     where: {
-  //       invite_code: inviteCode,
-  //     },
-  //     relations: ['groupStudents', 'groupStudents.student'],
-  //   });
+  async addStudentInviteCode(inviteCode: string, studentId: number) {
+    const studyGroup = await this.studyGroupRepository.findOne({
+      where: {
+        invite_code: inviteCode,
+      },
+      relations: ['groupStudents', 'groupStudents.student'],
+    });
 
-  //   if (!studyGroup) {
-  //     throw new Error('Study group not found');
-  //   }
+    if (!studyGroup) {
+      throw new Error('Study group not found');
+    }
 
-  //   const student = await this.userRepository.findOne({
-  //     where: {
-  //       id: studentId,
-  //     },
-  //   });
+    const student = await this.userRepository.findOne({
+      where: {
+        id: studentId,
+      },
+    });
 
-  //   if (!student) {
-  //     throw new Error('Student not found');
-  //   }
+    if (!student) {
+      throw new Error('Student not found');
+    }
 
-  //   const isStudentInGroup = studyGroup.groupStudents.some(
-  //     (groupStudent) => groupStudent.student.id === student.id,
-  //   );
+    const isStudentInGroup = studyGroup.group_students.some(
+      (groupStudent) => groupStudent.student.id === student.id,
+    );
 
-  //   if (isStudentInGroup) {
-  //     throw new Error('Student is already in the study group');
-  //   }
+    if (isStudentInGroup) {
+      throw new Error('Student is already in the study group');
+    }
 
-  //   studyGroup.groupStudents.push(student);
+    const groupStudent = this.groupStudentRepository.create({
+      study_group: studyGroup,
+      student: student,
+    });
 
-  //   return await this.studyGroupRepository.save(studyGroup);
-  // }
+    if (!groupStudent) {
+      throw new Error('Cannot add student to study group');
+    }
+
+    return {
+      success: true,
+      message: 'Vào nhóm thành công',
+    };
+  }
+
+  async changeInviteCode(studyGroupId: number) {
+    const studyGroup = await this.studyGroupRepository.findOne({
+      where: { id: studyGroupId },
+    });
+
+    if (!studyGroup) {
+      throw new Error('Study group not found');
+    }
+    const inviteCode = Math.random().toString(36).substring(2, 10);
+
+    if (studyGroup.invite_code === inviteCode) {
+      this.changeInviteCode(studyGroupId);
+    }
+
+    studyGroup.invite_code = inviteCode;
+
+    await this.studyGroupRepository.save(studyGroup);
+
+    return {
+      success: true,
+      message: 'Đổi mã thành công',
+      new_invite_code: inviteCode,
+    };
+  }
 
   async addStudentManual(body: AddStudentManualDto): Promise<GroupStudent> {
     console.log(body);
