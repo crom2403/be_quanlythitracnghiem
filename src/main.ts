@@ -16,8 +16,9 @@ async function bootstrap() {
 
   // Cấu hình CORS
   app.enableCors({
-    origin: configService.get('CORS_ORIGINS', '*'),
+    // origin: configService.get('CORS_ORIGINS', '*'),
     // origin: 'http://localhost:5173',
+    origin: 'https://fe-quanlythitracnghiem.vercel.app/',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: '*',

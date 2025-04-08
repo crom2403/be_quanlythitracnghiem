@@ -14,6 +14,7 @@ import { NotificationModule } from './modules/notification';
 
 import { JwtAuthGuard } from './modules/auth/guards';
 import { TokenInterceptor } from './modules/auth/interceptors';
+import { SeederModule } from 'src/modules/seeder';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -32,6 +33,7 @@ import { TokenInterceptor } from './modules/auth/interceptors';
     ContentModule,
     AuthModule,
     UsersModule,
+    SeederModule,
   ],
 
   providers: [

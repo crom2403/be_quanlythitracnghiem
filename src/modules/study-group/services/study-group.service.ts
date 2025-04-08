@@ -3,11 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dtos';
 import { PaginationResult } from 'src/common/interfaces';
-import {
-  AddStudentByInviteCodeDto,
-  AddStudentManualDto,
-  CreateStudyGroupDto,
-} from '../dtos';
+import { AddStudentManualDto, CreateStudyGroupDto } from '../dtos';
 import { StudyGroup, Semester, AcademicYear, GroupStudent } from '../entities';
 import { Subject } from 'src/modules/subject/entities';
 import { User } from 'src/modules/users/entities';

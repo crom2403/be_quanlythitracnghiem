@@ -1,3 +1,5 @@
+import { Chapter } from 'src/modules/content/entities/chapter.entity';
+
 import { TeacherSubject } from './teacher-subject.entity';
 import {
   Column,
@@ -16,7 +18,7 @@ export class Subject {
   @Column()
   public_id: string;
 
-  @Column()
+  @Column({ unique: true })
   name: string;
 
   @Column()
@@ -34,6 +36,9 @@ export class Subject {
     { cascade: true },
   )
   teacher_subjects: TeacherSubject[];
+
+  @OneToMany(() => Chapter, (chapter) => chapter.subject, { cascade: true })
+  chapters: Chapter[];
 
   @CreateDateColumn()
   created_at: Date;

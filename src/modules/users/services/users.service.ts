@@ -16,57 +16,10 @@ export class UsersService {
     private roleRepository: Repository<Role>,
   ) {}
 
-  // Run khi ứng dụng khởi tạo
-  async onModuleInit() {
-    await this.createDefaultRoles();
-    await this.createDefaultUsers();
-  }
-
   // Mã hóa password
-  private async hashPassword(password: string): Promise<string> {
+  public async hashPassword(password: string): Promise<string> {
     const saltRounds = 10; // Số vòng salt
     return await bcrypt.hash(password, saltRounds);
-  }
-  // Tạo Role Default
-  private async createDefaultRoles() {
-    const count = await this.roleRepository.count();
-    if (count === 0) {
-      const roles = ['admin', 'teacher', 'student'];
-      for (const roleName of roles) {
-        const role = new Role();
-        role.name = roleName;
-        await this.roleRepository.save(role);
-      }
-    }
-  }
-
-  // Tạo User Default
-  private async createDefaultUsers() {
-    const count = await this.userRepository.count();
-    if (count === 0) {
-      // First, get the admin role
-      const adminRole = await this.roleRepository.findOne({
-        where: { name: 'admin' },
-      });
-
-      if (!adminRole) {
-        throw new Error('Admin role not found');
-      }
-
-      const user = new User();
-      user.student_code = 'dh52106677';
-      user.fullname = 'Admin';
-      user.password = '123456';
-      user.email = 'thanhsonrau2002@gmail.com';
-      user.birthday = new Date('2002-03-24');
-      user.avatar = null;
-      user.role = adminRole;
-
-      user.password = await this.hashPassword(user.password);
-
-      await this.userRepository.save(user);
-      console.log('Default user created');
-    }
   }
 
   async findByStudentCode(student_code: string): Promise<User> {

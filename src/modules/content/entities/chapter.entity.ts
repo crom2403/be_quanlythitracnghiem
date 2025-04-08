@@ -1,5 +1,5 @@
 import { Question } from './question.entity';
-import { Subject } from 'src/modules/subject/entities';
+import { Subject } from 'src/modules/subject/entities/subject.entity';
 import {
   Column,
   CreateDateColumn,

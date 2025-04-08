@@ -11,7 +11,7 @@ export const getTypeOrmConfig = async (
   password: configService.get('DB_PASSWORD'),
   database: configService.get('DB_DATABASE'),
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  // synchronize: process.env.NODE_ENV !== 'production', // Không dùng synchronize trong production
+  synchronize: process.env.NODE_ENV !== 'production', // Không dùng synchronize trong production
   // logging: process.env.NODE_ENV !== 'production',
   logging: false,
   logger: 'advanced-console',
