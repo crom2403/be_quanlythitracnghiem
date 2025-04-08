@@ -22,7 +22,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: '*',
-    exposedHeaders: 'Content-Type, Authorization',
+    // exposedHeaders: 'Content-Type, Authorization',
   });
 
   // Cấu hình Validation Pipe global
