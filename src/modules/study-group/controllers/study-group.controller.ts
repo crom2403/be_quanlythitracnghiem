@@ -56,10 +56,11 @@ export class StudyGroupController {
     @Request() req,
     @Body() createStudyGroupDto: { invite_code: string },
   ) {
+    console.log(req.user);
     const userId = req.user?.sub.userId;
     return this.studyGroupService.addStudentInviteCode(
       createStudyGroupDto.invite_code,
-      +userId,
+      userId,
     );
   }
 
