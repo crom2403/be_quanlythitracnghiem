@@ -120,8 +120,8 @@ export class StudyGroupService {
       relations: [
         'semester',
         'academic_year',
-        'groupStudents',
-        'groupStudents.student',
+        'group_students',
+        'group_students.student',
       ],
     });
   }
@@ -199,7 +199,7 @@ export class StudyGroupService {
       where: {
         invite_code: inviteCode,
       },
-      relations: ['groupStudents', 'groupStudents.student'],
+      relations: ['group_students', 'group_students.student'],
     });
   }
 
