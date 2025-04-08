@@ -9,7 +9,11 @@ import {
   Request,
 } from '@nestjs/common';
 import { PaginationDto } from 'src/common/dtos';
-import { AddStudentManualDto, CreateStudyGroupDto } from '../dtos';
+import {
+  AddStudentByInviteCodeDto,
+  AddStudentManualDto,
+  CreateStudyGroupDto,
+} from '../dtos';
 import { StudyGroupService } from '../services';
 
 @Controller('study-group')
@@ -54,13 +58,13 @@ export class StudyGroupController {
   @Post('invite')
   async addStudentInviteCode(
     @Request() req,
-    @Body() createStudyGroupDto: { invite_code: string },
+    @Body() addStudentByInviteCodeDto: AddStudentByInviteCodeDto,
   ) {
     console.log(req.user);
     const userId = req.user?.sub.userId;
     return this.studyGroupService.addStudentInviteCode(
-      createStudyGroupDto.invite_code,
       userId,
+      addStudentByInviteCodeDto,
     );
   }
 
