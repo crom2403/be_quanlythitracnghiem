@@ -20,11 +20,6 @@ import { StudyGroupService } from '../services';
 export class StudyGroupController {
   constructor(private readonly studyGroupService: StudyGroupService) {}
 
-  @Get()
-  async getStudyGroups(@Query() paginationDto: PaginationDto) {
-    return this.studyGroupService.getAllStudyGroups(paginationDto);
-  }
-
   @Get('student/:student_code')
   async getStudyGroupByStudentId(@Param('student_code') student_code: string) {
     return this.studyGroupService.getStudyGroupByStudentCode(student_code);
@@ -50,9 +45,9 @@ export class StudyGroupController {
     return this.studyGroupService.changeInviteCode(+studyGroupId);
   }
 
-  @Post()
-  async createStudyGroup(@Body() createStudyGroupDto: CreateStudyGroupDto) {
-    return this.studyGroupService.createStudyGroup(createStudyGroupDto);
+  @Get()
+  async getStudyGroups(@Query() paginationDto: PaginationDto) {
+    return this.studyGroupService.getAllStudyGroups(paginationDto);
   }
 
   @Post('invite')
@@ -64,17 +59,22 @@ export class StudyGroupController {
     const userId = req.user?.sub.userId;
     return this.studyGroupService.addStudentInviteCode(
       userId,
-      addStudentByInviteCodeDto,
+      addStudentByInviteCodeDto.invite_code,
     );
-  }
-
-  @Delete(':id')
-  async deleteStudyGroup(@Param('id') id: string) {
-    return this.studyGroupService.deleteStudyGroup(+id);
   }
 
   @Post('manual')
   async addStudentManual(@Body() body: AddStudentManualDto) {
     return this.studyGroupService.addStudentManual(body);
+  }
+
+  @Post()
+  async createStudyGroup(@Body() createStudyGroupDto: CreateStudyGroupDto) {
+    return this.studyGroupService.createStudyGroup(createStudyGroupDto);
+  }
+
+  @Delete(':id')
+  async deleteStudyGroup(@Param('id') id: string) {
+    return this.studyGroupService.deleteStudyGroup(+id);
   }
 }

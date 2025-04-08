@@ -341,19 +341,11 @@ export class StudyGroupService {
     });
   }
 
-  async addStudentInviteCode(
-    studentId: number,
-    addStudentByInviteCodeDto: AddStudentByInviteCodeDto,
-  ) {
-    console.log(
-      'InviteCode:',
-      addStudentByInviteCodeDto.invite_code,
-      'StudentId:',
-      studentId,
-    );
+  async addStudentInviteCode(studentId: number, invite_code: string) {
+    console.log('InviteCode:', invite_code, 'StudentId:', studentId);
     const studyGroup = await this.studyGroupRepository.findOne({
       where: {
-        invite_code: addStudentByInviteCodeDto.invite_code,
+        invite_code: invite_code,
       },
       relations: ['group_students', 'group_students.student'],
     });

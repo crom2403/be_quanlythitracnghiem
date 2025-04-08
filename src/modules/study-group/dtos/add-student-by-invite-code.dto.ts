@@ -4,6 +4,6 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class AddStudentByInviteCodeDto {
   @IsNotEmpty()
   @IsString()
-  @ApiProperty({ example: '1' })
+  @ApiProperty({ example: 'sfsd232' })
   invite_code: string;
 }
