@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dtos';
@@ -342,7 +342,7 @@ export class StudyGroupService {
       where: {
         invite_code: inviteCode,
       },
-      relations: ['groupStudents', 'groupStudents.student'],
+      relations: ['group_students', 'group_students.student'],
     });
 
     if (!studyGroup) {
@@ -356,7 +356,7 @@ export class StudyGroupService {
     });
 
     if (!student) {
-      throw new Error('Student not found');
+      throw new HttpException('Student not found', HttpStatus.BAD_REQUEST);
     }
 
     const isStudentInGroup = studyGroup.group_students.some(
@@ -364,7 +364,10 @@ export class StudyGroupService {
     );
 
     if (isStudentInGroup) {
-      throw new Error('Student is already in the study group');
+      throw new HttpException(
+        'Student already in study group',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const groupStudent = this.groupStudentRepository.create({
@@ -372,7 +375,10 @@ export class StudyGroupService {
       student: student,
     });
 
-    if (!groupStudent) {
+    const newGroupStudent =
+      await this.groupStudentRepository.save(groupStudent);
+
+    if (!newGroupStudent) {
       throw new Error('Cannot add student to study group');
     }
 
