@@ -345,12 +345,19 @@ export class StudyGroupService {
     studentId: number,
     addStudentByInviteCodeDto: AddStudentByInviteCodeDto,
   ) {
+    console.log(
+      'InviteCode:',
+      addStudentByInviteCodeDto.invite_code,
+      'StudentId:',
+      studentId,
+    );
     const studyGroup = await this.studyGroupRepository.findOne({
       where: {
         invite_code: addStudentByInviteCodeDto.invite_code,
       },
       relations: ['group_students', 'group_students.student'],
     });
+    console.log('StudyGroup:', studyGroup);
 
     if (!studyGroup) {
       throw new Error('Study group not found');
