@@ -16,13 +16,27 @@ async function bootstrap() {
 
   // Cấu hình CORS
   app.enableCors({
-    // origin: configService.get('CORS_ORIGINS', '*'),
-    // origin: 'http://localhost:5173',
-    origin: 'https://fe-quanlythitracnghiem.vercel.app/',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    origin: (origin, callback) => {
+      const whitelist = [
+        'http://localhost:5173',
+        'https://fe-quanlythitracnghiem.vercel.app',
+      ];
+
+      if (!origin || whitelist.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
-    allowedHeaders: '*',
-    // exposedHeaders: 'Content-Type, Authorization',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Accept',
+      'Origin',
+    ],
   });
 
   // Cấu hình Validation Pipe global
