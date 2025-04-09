@@ -220,20 +220,6 @@ export class StudyGroupService {
         // Tạo key duy nhất dựa trên subject.id, academic_year.id, semester.id
         const key = `${group.subject.id}-${group.academic_year.id}-${group.semester.id}`;
         const name = `${group.subject.public_id} - ${group.subject.name} - NH${group.academic_year.start_year} - ${group.semester.name}`;
-        // const subject = {
-        //   id: group.subject.id,
-        //   public_id: group.subject.public_id,
-        //   name: group.subject.name,
-        // };
-        // const academicYear = {
-        //   id: group.academic_year.id,
-        //   start_year: group.academic_year.start_year,
-        //   end_year: group.academic_year.end_year,
-        // };
-        // const semester = {
-        //   id: group.semester.id,
-        //   name: group.semester.name,
-        // };
 
         // Nếu key chưa tồn tại trong accumulator, tạo một entry mới
         if (!acc[key]) {
@@ -310,6 +296,7 @@ export class StudyGroupService {
         acc[key].studyGroups.push({
           id: group.id,
           student_count: group.group_students.length, // Danh sách sinh viên
+          name: group.name,
           note: group.note,
           // Thêm các thuộc tính khác của studyGroup nếu cần
         });

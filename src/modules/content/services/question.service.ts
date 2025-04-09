@@ -27,7 +27,7 @@ export class QuestionService {
 
   async getAllQuestions(
     paginationDto: PaginationDto,
-  ): Promise<PaginationResult<Question>> {
+  ): Promise<PaginationResult<any>> {
     const { page, limit } = paginationDto;
     const [items, total] = await this.questionRepository.findAndCount({
       skip: (page - 1) * limit,
@@ -35,10 +35,31 @@ export class QuestionService {
       order: {
         id: 'DESC',
       },
+      relations: ['chapter', 'chapter.subject'],
+      select: {
+        id: true,
+        content: true,
+        difficulty_level: true,
+        chapter: {
+          id: true,
+          name: true,
+          subject: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
-
+    const result = items.map((_) => {
+      return {
+        id: _.id,
+        content: _.content,
+        difficulty_level: _.difficulty_level,
+        subject_name: _.chapter.subject.name,
+      };
+    });
     return {
-      items,
+      items: result,
       total,
       page,
       limit,
