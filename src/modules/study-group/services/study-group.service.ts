@@ -249,6 +249,7 @@ export class StudyGroupService {
         // Thêm studyGroup vào mảng tương ứng
         acc[key].studyGroups.push({
           id: group.id,
+          name: group.name,
           student_count: group.group_students.length, // Danh sách sinh viên
           note: group.note,
           // Thêm các thuộc tính khác của studyGroup nếu cần

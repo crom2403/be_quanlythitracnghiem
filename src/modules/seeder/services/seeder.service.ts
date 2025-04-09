@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prefer-const */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,7 +15,7 @@ import {
   Semester,
   AcademicYear,
 } from 'src/modules';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import {
   roleData,
@@ -22,7 +23,12 @@ import {
   subjectData,
   listQuestionData,
 } from '../mock-data';
-import { Exam, ExamConfig } from 'src/modules/exam';
+import {
+  Exam,
+  ExamConfig,
+  ExamQuestion,
+  ExamStudyGroup,
+} from 'src/modules/exam';
 
 @Injectable()
 export class SeederService {
@@ -53,6 +59,10 @@ export class SeederService {
     private examRepository: Repository<Exam>,
     @InjectRepository(ExamConfig)
     private examConfigRepository: Repository<ExamConfig>,
+    @InjectRepository(ExamQuestion)
+    private examQuestionRepository: Repository<ExamQuestion>,
+    @InjectRepository(ExamStudyGroup)
+    private examStudyGroupRepository: Repository<ExamStudyGroup>,
   ) {}
 
   async onModuleInit() {
@@ -69,6 +79,7 @@ export class SeederService {
     await this.createGroupStudents();
     await this.createDefaultExams();
     await this.createDefaultExamConfig();
+    await this.addQuestionToAnExam();
   }
 
   // Tạo Role Default
@@ -351,11 +362,26 @@ export class SeederService {
           exam.allow_review = Math.random() < 0.5;
           exam.allow_review_point = Math.random() < 0.5;
           exam.exam_type = Math.random() < 0.5 ? 'manual' : 'auto';
+          exam.duration_minutes = 90;
           exam.created_by = teacher;
           exams.push(exam);
         }
+        await this.examRepository.save(exams);
+        const studyGroups = await this.studyGroupRepository.find({
+          where: { teacher: { id: teacher.id } },
+        });
+        for (const studyGroup of studyGroups) {
+          const examStudyGroups = [];
+          for (const exam of exams) {
+            const examStudyGroup = new ExamStudyGroup();
+            examStudyGroup.exam = exam;
+            examStudyGroup.study_group = studyGroup;
+            examStudyGroups.push(examStudyGroup);
+          }
+          await this.examStudyGroupRepository.save(examStudyGroups);
+        }
       }
-      await this.examRepository.save(exams);
+
       console.log('Default exams created randomly');
     }
   }
@@ -382,20 +408,81 @@ export class SeederService {
     }
   }
 
-  //   async addQuestionToAnExam(examId: number, questionId: number) {
-  //     const exam = await this.examRepository.findOne({
-  //       where: { id: examId },
-  //       relations: ['questions'],
-  //     });
-  //     const question = await this.questionRepository.findOne({
-  //       where: { id: questionId },
-  //     });
-  //     if (exam && question) {
-  //       exam.questions.push(question);
-  //       await this.examRepository.save(exam);
-  //       console.log('Question added to exam successfully');
-  //     } else {
-  //       console.log('Exam or question not found');
-  //     }
-  //   }
+  async addQuestionToAnExam() {
+    // Kiểm tra nếu bảng ExamQuestion rỗng
+    const count = await this.examQuestionRepository.count();
+    if (count > 0) return; // Thoát nếu đã có dữ liệu
+
+    // Lấy tất cả kỳ thi một lần
+    const exams = await this.examRepository.find({
+      relations: ['exam_configs', 'created_by'],
+    });
+
+    // Duyệt qua từng kỳ thi
+    for (const exam of exams) {
+      // Lấy danh sách môn học của giáo viên
+      const listSubjects = await this.teacherSubjectRepository.find({
+        where: { teacher: { id: exam.created_by.id } },
+        relations: ['subject'],
+      });
+
+      if (!listSubjects.length) {
+        console.log(`No subjects found for teacher ${exam.created_by.id}`);
+        continue;
+      }
+
+      const subjectIds = listSubjects.map((ts) => ts.subject.id);
+
+      // Tạo danh sách ExamQuestion dựa trên exam_configs
+      const examQuestions = [];
+      let orderIndex = 1;
+
+      for (const config of exam.exam_configs) {
+        // Lấy câu hỏi theo subjectIds và difficulty_level của config
+        const questions = await this.questionRepository.find({
+          where: {
+            chapter: { subject: { id: In(subjectIds) } },
+            difficulty_level: config.difficulty_level, // Lọc theo độ khó
+          },
+          relations: ['chapter', 'chapter.subject'],
+        });
+
+        if (!questions.length) {
+          console.log(
+            `No questions found for exam ${exam.id} with difficulty ${config.difficulty_level}`,
+          );
+          continue;
+        }
+
+        const availableQuestions = [...questions]; // Sao chép để tránh trùng lặp
+        for (
+          let i = 0;
+          i < config.question_count && availableQuestions.length > 0;
+          i++
+        ) {
+          const randomIndex = Math.floor(
+            Math.random() * availableQuestions.length,
+          );
+          const selectedQuestion = availableQuestions.splice(randomIndex, 1)[0];
+
+          const examQuestion = new ExamQuestion();
+          examQuestion.exam = exam;
+          examQuestion.question = selectedQuestion;
+          examQuestion.order_index = orderIndex++;
+          examQuestion.points = 0; // Có thể thay đổi theo yêu cầu
+          examQuestions.push(examQuestion);
+        }
+      }
+
+      // Lưu tất cả ExamQuestion một lần
+      if (examQuestions.length > 0) {
+        await this.examQuestionRepository.save(examQuestions);
+        console.log(
+          `Added ${examQuestions.length} questions to exam ${exam.id}`,
+        );
+      } else {
+        console.log(`No questions added to exam ${exam.id}`);
+      }
+    }
+  }
 }
