@@ -11,6 +11,7 @@ export class ExamAttemptController {
     @Body() createExamAttemptDto: CreateExamAttemptDto,
   ) {
     const userId = req.user?.sub.userId;
+    console.log('exam_id', createExamAttemptDto);
     return this.examAttemptService.create(userId, createExamAttemptDto);
   }
 }

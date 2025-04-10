@@ -34,6 +34,6 @@ import { ContentModule } from 'src/modules/content';
   ],
   controllers: [ExamController, ExamAttemptController],
   providers: [ExamService, ExamAttemptService],
-  exports: [TypeOrmModule, ExamService, ExamAttemptService],
+  exports: [ExamService, ExamAttemptService],
 })
 export class ExamModule {}

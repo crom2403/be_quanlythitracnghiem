@@ -1,6 +1,7 @@
 import { Answer, Question } from 'src/modules/content/entities';
 import { ExamAttempt } from '../entities';
 import {
+  Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
@@ -12,6 +13,9 @@ import {
 export class AttemptAnswer {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  is_selected: boolean;
 
   @ManyToOne(() => ExamAttempt)
   attempt: ExamAttempt;

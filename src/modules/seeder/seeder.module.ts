@@ -6,10 +6,16 @@ import { ContentModule } from 'src/modules/content';
 import { SeederService } from 'src/modules/seeder/services';
 import { StudyGroupModule } from 'src/modules/study-group';
 import { ExamModule } from 'src/modules/exam';
+import {
+  Exam,
+  ExamConfig,
+  ExamQuestion,
+  ExamStudyGroup,
+} from 'src/modules/exam/entities';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([]),
+    TypeOrmModule.forFeature([Exam, ExamConfig, ExamQuestion, ExamStudyGroup]),
     UsersModule,
     SubjectModule,
     ContentModule,
@@ -17,6 +23,6 @@ import { ExamModule } from 'src/modules/exam';
     ExamModule,
   ],
   providers: [SeederService],
-  exports: [TypeOrmModule, SeederService],
+  exports: [SeederService],
 })
 export class SeederModule {}

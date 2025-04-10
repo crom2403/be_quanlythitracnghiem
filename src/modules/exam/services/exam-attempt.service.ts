@@ -1,24 +1,43 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ExamAttempt } from '../entities';
+import { AttemptAnswer, Exam, ExamAttempt } from '../entities';
 import { Repository } from 'typeorm';
 import { CreateExamAttemptDto, QuestionItemDto } from '../dtos';
 import { User } from 'src/modules/users';
 import { RoleType } from 'src/modules/auth';
-import { ExamService } from './exam.service';
+import { Answer, Question } from 'src/modules/content';
+import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 
 @Injectable()
 export class ExamAttemptService {
   constructor(
     @InjectRepository(ExamAttempt)
     private examAttemptRepository: Repository<ExamAttempt>,
+    @InjectRepository(AttemptAnswer)
+    private attemptAnswerRepository: Repository<AttemptAnswer>,
+    @InjectRepository(Question)
+    private questionRepository: Repository<Question>,
+    @InjectRepository(Answer)
+    private answerRepository: Repository<Answer>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    private readonly examService: ExamService,
+    @InjectRepository(Exam)
+    private examRepository: Repository<Exam>,
   ) {}
 
   async getAllExamAttemptOfStudent() {
     return this.examAttemptRepository.find();
+  }
+
+  private async getExamById(examId: number) {
+    return this.examRepository.findOne({
+      where: { id: examId },
+      relations: [
+        'exam_questions',
+        'exam_questions.question',
+        'exam_questions.question.answers',
+      ],
+    });
   }
 
   async create(
@@ -33,30 +52,49 @@ export class ExamAttemptService {
       test_time,
       tab_switch_count,
     } = createExamAttemptDto;
+
+    // Kiểm tra user
     const user = await this.userRepository.findOne({
-      where: {
-        id: +studentId,
-      },
+      where: { id: +studentId },
+      relations: ['role'],
+      select: { id: true, role: { name: true } },
     });
 
     if (!user) {
-      throw new Error('User not found');
+      throw new Error('Người dùng không tồn tại');
     }
 
     if (user.role.name !== RoleType.STUDENT) {
-      throw new Error('User is not student');
+      throw new HttpErrorByCode[400](
+        'Bạn không có quyền thực hiện hành động này',
+      );
     }
 
-    const exam = await this.examService.getExamById(exam_id);
-
+    // Kiểm tra bài thi
+    const exam = await this.getExamById(exam_id);
     if (!exam) {
-      throw new Error('Exam not found');
+      throw new HttpErrorByCode[400]('Bài thi không tồn tại');
     }
 
-    // Tính điểm bài kiểm tra
-    const score = this.calculateExamScore(list_question, exam.exam_questions);
+    // Kiểm tra xem đã thi chưa
+    // const examAttempt = await this.examAttemptRepository.findOne({
+    //   where: {
+    //     exam: { id: exam_id },
+    //     user: { id: user.id },
+    //   },
+    // });
 
-    // Tạo bản ghi mới cho lần thi
+    // if (examAttempt) {
+    //   throw new HttpErrorByCode[400]('Sinh viên đã làm bài thi này rồi!');
+    // }
+
+    // Tính điểm
+    const score = await this.calculateExamScore(
+      list_question,
+      exam.exam_questions,
+    );
+
+    // Tạo exam attempt
     const newExamAttempt = this.examAttemptRepository.create({
       end_time: new Date(end_time),
       start_time: new Date(start_time),
@@ -69,71 +107,75 @@ export class ExamAttemptService {
 
     const result = await this.examAttemptRepository.save(newExamAttempt);
 
-    if (!result) {
-      throw new Error('Create exam attempt failed');
+    // Lưu các câu trả lời
+    for (const question of list_question) {
+      const { question_id, answer_id, is_selected } = question;
+
+      const questionEntity = await this.questionRepository.findOne({
+        where: { id: question_id },
+      });
+
+      if (!questionEntity) {
+        throw new HttpErrorByCode[400](`Câu hỏi ${question_id} không tồn tại`);
+      }
+
+      const answer = await this.answerRepository.findOne({
+        where: { id: answer_id },
+      });
+
+      if (!answer) {
+        throw new HttpErrorByCode[400](`Đáp án ${answer_id} không tồn tại`);
+      }
+
+      const attemptAnswer = this.attemptAnswerRepository.create({
+        question: questionEntity,
+        answer,
+        is_selected,
+        attempt: result,
+      });
+
+      await this.attemptAnswerRepository.save(attemptAnswer);
     }
 
     return {
       success: true,
-      message: 'Nôp bài thi thành công',
+      message: 'Nộp bài thi thành công',
+      result,
     };
   }
 
-  private calculateExamScore(
+  private async calculateExamScore(
     studentAnswers: QuestionItemDto[],
     examQuestions: any[],
-  ): number {
+  ): Promise<number> {
     let correctAnswersCount = 0;
     const totalQuestions = examQuestions.length;
 
-    // Kiểm tra từng câu trả lời của học sinh
-    studentAnswers.forEach((studentQuestion) => {
-      // Tìm câu hỏi tương ứng trong đề thi
+    for (const studentAnswer of studentAnswers) {
       const examQuestion = examQuestions.find(
-        (q) => q.id === studentQuestion.question_id,
+        (q) => q.id === studentAnswer.question_id,
       );
 
-      if (!examQuestion) return;
+      if (!examQuestion) continue;
 
-      // Kiểm tra câu trả lời
-      let isCorrect = true;
+      const correctAnswers = examQuestion.answers
+        .filter((ans) => ans.is_correct)
+        .map((ans) => ans.id);
 
-      // Lấy danh sách đáp án đúng từ examQuestion
-      const correctAnswers = examQuestion.answers.filter(
-        (ans) => ans.is_correct,
-      );
+      // Kiểm tra đáp án của học sinh
+      const isCorrect =
+        correctAnswers.length === 1 &&
+        correctAnswers[0] === studentAnswer.answer_id &&
+        studentAnswer.is_selected;
 
-      // Kiểm tra xem học sinh đã chọn đúng tất cả đáp án đúng chưa
-      const selectedAnswers = studentQuestion.list_answer.filter(
-        (ans) => ans.is_selected,
-      );
-
-      // Kiểm tra xem học sinh có chọn đúng số lượng và ID của đáp án đúng không
-      if (selectedAnswers.length !== correctAnswers.length) {
-        isCorrect = false;
-      } else {
-        // Kiểm tra từng đáp án được chọn có nằm trong danh sách đáp án đúng không
-        selectedAnswers.forEach((selectedAns) => {
-          const isCorrectAnswer = correctAnswers.some(
-            (correctAns) => correctAns.id === selectedAns.anwer_id,
-          );
-          if (!isCorrectAnswer) {
-            isCorrect = false;
-          }
-        });
-      }
-
-      // Đếm số câu trả lời đúng
       if (isCorrect) {
         correctAnswersCount++;
       }
-    });
+    }
 
-    // Tính điểm theo thang điểm 10
     const score =
       totalQuestions > 0 ? (correctAnswersCount / totalQuestions) * 10 : 0;
 
-    // Làm tròn điểm số đến 2 chữ số thập phân
     return Math.round(score * 100) / 100;
   }
 }
