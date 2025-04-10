@@ -139,8 +139,7 @@ export class ExamAttemptService {
 
     return {
       success: true,
-      message: 'Nộp bài thi thành công',
-      result,
+      message: 'Nộp bài thi thành công!',
     };
   }
 
