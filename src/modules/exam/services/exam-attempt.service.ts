@@ -130,7 +130,7 @@ export class ExamAttemptService {
       const attemptAnswer = this.attemptAnswerRepository.create({
         question: questionEntity,
         answer,
-        is_selected,
+        is_selected: is_selected,
         attempt: result,
       });
 
@@ -158,8 +158,8 @@ export class ExamAttemptService {
       if (!examQuestion) continue;
 
       const correctAnswers = examQuestion.answers
-        .filter((ans) => ans.is_correct)
-        .map((ans) => ans.id);
+        .filter((ans: Answer) => ans.is_correct)
+        .map((ans: Answer) => ans.id);
 
       // Kiểm tra đáp án của học sinh
       const isCorrect =

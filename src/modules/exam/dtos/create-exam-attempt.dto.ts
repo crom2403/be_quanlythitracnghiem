@@ -26,9 +26,11 @@ export class QuestionItemDto {
   @ApiProperty()
   @IsNotEmpty()
   question_id: number;
+
   @ApiProperty()
   @IsNotEmpty()
   answer_id: number;
+
   @ApiProperty()
   @IsNotEmpty()
   is_selected: boolean;

@@ -29,9 +29,6 @@ export class ExamAttempt {
   @Column()
   tab_switch_count: number;
 
-  @Column()
-  is_selected: boolean;
-
   @ManyToOne(() => Exam, (exam) => exam.exam_attempts)
   exam: Exam;
 
