@@ -127,4 +127,20 @@ export class QuestionService {
       );
     }
   }
+
+  async deleteQuestion(questionId: number) {
+    // Kiểm tra xem câu hỏi có tồn tại hay không
+    const question = await this.questionRepository.findOne({
+      where: {
+        id: questionId,
+      },
+    });
+
+    if (!question) {
+      throw new NotFoundException('Question not found');
+    }
+
+    // Xóa câu hỏi
+    await this.questionRepository.remove(question);
+  }
 }

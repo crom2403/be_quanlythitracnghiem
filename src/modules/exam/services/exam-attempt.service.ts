@@ -53,7 +53,7 @@ export class ExamAttemptService {
       tab_switch_count,
     } = createExamAttemptDto;
 
-    // Kiểm tra user
+    // Check user
     const user = await this.userRepository.findOne({
       where: { id: +studentId },
       relations: ['role'],
@@ -70,31 +70,19 @@ export class ExamAttemptService {
       );
     }
 
-    // Kiểm tra bài thi
+    // Check exam
     const exam = await this.getExamById(exam_id);
     if (!exam) {
       throw new HttpErrorByCode[400]('Bài thi không tồn tại');
     }
 
-    // Kiểm tra xem đã thi chưa
-    // const examAttempt = await this.examAttemptRepository.findOne({
-    //   where: {
-    //     exam: { id: exam_id },
-    //     user: { id: user.id },
-    //   },
-    // });
-
-    // if (examAttempt) {
-    //   throw new HttpErrorByCode[400]('Sinh viên đã làm bài thi này rồi!');
-    // }
-
-    // Tính điểm
+    // Calculate score
     const score = await this.calculateExamScore(
       list_question,
       exam.exam_questions,
     );
 
-    // Tạo exam attempt
+    // Create exam attempt
     const newExamAttempt = this.examAttemptRepository.create({
       end_time: new Date(end_time),
       start_time: new Date(start_time),
@@ -107,7 +95,7 @@ export class ExamAttemptService {
 
     const result = await this.examAttemptRepository.save(newExamAttempt);
 
-    // Lưu các câu trả lời
+    // Save answers
     for (const question of list_question) {
       const { question_id, answer_id, is_selected } = question;
 
@@ -151,20 +139,29 @@ export class ExamAttemptService {
     const totalQuestions = examQuestions.length;
 
     for (const studentAnswer of studentAnswers) {
+      // Find the corresponding exam question
       const examQuestion = examQuestions.find(
         (q) => q.id === studentAnswer.question_id,
       );
 
-      if (!examQuestion) continue;
+      if (!examQuestion) {
+        continue; // Skip if question not found
+      }
 
-      const correctAnswers = examQuestion.answers
-        .filter((ans: Answer) => ans.is_correct)
-        .map((ans: Answer) => ans.id);
+      // Ensure answers exist and is an array
+      const answers = Array.isArray(examQuestion.answers)
+        ? examQuestion.answers
+        : [];
 
-      // Kiểm tra đáp án của học sinh
+      // Get correct answer IDs
+      const correctAnswers = answers
+        .filter((ans: any) => ans?.is_correct === true)
+        .map((ans: any) => ans.id);
+
+      // Check if student's answer is correct
       const isCorrect =
         correctAnswers.length === 1 &&
-        correctAnswers[0] === studentAnswer.answer_id &&
+        correctAnswers.includes(studentAnswer.answer_id) &&
         studentAnswer.is_selected;
 
       if (isCorrect) {
@@ -172,6 +169,7 @@ export class ExamAttemptService {
       }
     }
 
+    // Calculate score (scale to 10, rounded to 2 decimal places)
     const score =
       totalQuestions > 0 ? (correctAnswersCount / totalQuestions) * 10 : 0;
 
