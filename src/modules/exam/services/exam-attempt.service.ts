@@ -177,4 +177,30 @@ export class ExamAttemptService {
 
     return Math.round(score * 100) / 100;
   }
+
+  async checkStudentCanTakeExam(studentId: number, examId: number) {
+    const exam = await this.examRepository.findOne({
+      where: { id: examId },
+      relations: ['exam_questions'],
+    });
+    if (!exam) {
+      throw new HttpErrorByCode[400]('Bài thi không tồn tại');
+    }
+    const examAttempt = await this.examAttemptRepository.findOne({
+      where: {
+        exam: { id: examId },
+        user: { id: studentId },
+      },
+    });
+    if (examAttempt) {
+      return {
+        success: false,
+        message: 'Sinh viên đã làm bài thi này rồi!',
+      };
+    }
+    return {
+      success: true,
+      message: 'Sinh viên có thể làm bài thi này',
+    };
+  }
 }
