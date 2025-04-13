@@ -49,6 +49,10 @@ export class StudyGroupController {
   async getStudyGroups(@Query() paginationDto: PaginationDto) {
     return this.studyGroupService.getAllStudyGroups(paginationDto);
   }
+  @Get('get-invite-code/:studyGroupId')
+  async getInviteCode(@Param('studyGroupId') studyGroupId: string) {
+    return this.studyGroupService.getInviteCodeByGroupId(+studyGroupId);
+  }
 
   @Post('invite')
   async addStudentInviteCode(

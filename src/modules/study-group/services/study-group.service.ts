@@ -72,6 +72,24 @@ export class StudyGroupService {
     }
   }
 
+  async getInviteCodeByGroupId(studyGroupId: number) {
+    const studyGroup = await this.studyGroupRepository.findOne({
+      where: {
+        id: studyGroupId,
+      },
+    });
+
+    if (!studyGroup) {
+      throw new Error('Study group not found');
+    }
+
+    return {
+      success: true,
+      message: 'Lấy mã thành công',
+      invite_code: studyGroup.invite_code,
+    };
+  }
+
   async getAllStudyGroups(
     paginationDto: PaginationDto,
   ): Promise<PaginationResult<StudyGroup> | StudyGroup[]> {
@@ -86,6 +104,7 @@ export class StudyGroupService {
       select: {
         id: true, // Chọn thuộc tính id của StudyGroup
         name: true, // Chọn thuộc tính name của StudyGroup
+        invite_code: true,
         semester: {
           id: true, // Chọn thuộc tính id của semester
           name: true, // Chọn thuộc tính name của semester
