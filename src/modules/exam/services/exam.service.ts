@@ -244,4 +244,82 @@ export class ExamService {
 
     return exam;
   }
+
+  async getAllExam(userId: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['role'],
+    });
+    // Kiểm tra nếu không tìm thấy user
+    if (!user) {
+      throw new Error('Người dùng không tồn tại');
+    }
+
+    if (user.role?.name !== 'admin') {
+      throw new Error('Người dùng không phải là admin');
+    }
+
+    const exams = await this.examRepository.find({
+      relations: [
+        'created_by',
+        'exam_study_groups',
+        'exam_study_groups.study_group.semester',
+        'exam_study_groups.study_group.subject',
+        'exam_study_groups.study_group.academic_year',
+      ],
+    });
+
+    // Sửa logic map để xử lý mảng exam_study_group
+    const result = exams.map((exam: any) => ({
+      id: exam.id,
+      name: exam.name,
+      created_by: exam.created_by?.id + ' - ' + exam.created_by?.fullname,
+      start_time: this.formatDateTime(exam.start_time),
+      end_time: this.formatDateTime(exam.end_time),
+      group_student_name: exam.exam_study_groups[0]
+        ? `${exam.exam_study_groups[0].study_group?.subject?.name} - NH${exam.exam_study_groups[0].study_group?.academic_year?.start_year} - ${exam.exam_study_groups[0].study_group?.semester?.name}`
+        : '',
+    }));
+
+    return result;
+  }
+
+  async getAllExamByTeacher(teacherId: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: teacherId },
+      relations: ['role'],
+    });
+    // Kiểm tra nếu không tìm thấy user
+    if (!user) {
+      throw new Error('Người dùng không tồn tại');
+    }
+
+    if (user.role?.name !== 'teacher') {
+      throw new Error('Người dùng không phải là giáo viên');
+    }
+
+    const exams = await this.examRepository.find({
+      where: { created_by: { id: teacherId } },
+      relations: [
+        'created_by',
+        'exam_study_groups',
+        'exam_study_groups.study_group.semester',
+        'exam_study_groups.study_group.subject',
+        'exam_study_groups.study_group.academic_year',
+      ],
+    });
+
+    // Sửa logic map để xử lý mảng exam_study_group
+    const result = exams.map((exam: any) => ({
+      id: exam.id,
+      name: exam.name,
+      start_time: this.formatDateTime(exam.start_time),
+      end_time: this.formatDateTime(exam.end_time),
+      group_student_name: exam.exam_study_groups[0]
+        ? `${exam.exam_study_groups[0].study_group?.subject?.name} - NH${exam.exam_study_groups[0].study_group?.academic_year?.start_year} - ${exam.exam_study_groups[0].study_group?.semester?.name}`
+        : '',
+    }));
+
+    return result;
+  }
 }

@@ -7,6 +7,18 @@ import { ExamService } from '../services';
 export class ExamController {
   constructor(private readonly examService: ExamService) {}
 
+  @Get('/get-all')
+  async getAllExam(@Request() req: any) {
+    const userId = req.user?.sub.userId;
+    return this.examService.getAllExam(userId);
+  }
+
+  @Get('/get-all-by-teacher')
+  async getAllExamByTeacher(@Request() req: any) {
+    const userId = req.user?.sub.userId;
+    return this.examService.getAllExamByTeacher(userId);
+  }
+
   @Get('/get-all-exams-of-student')
   async getAllExamOfStudent(@Request() req: any) {
     const userId = req.user?.sub.userId;
