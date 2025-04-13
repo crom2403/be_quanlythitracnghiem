@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   Request,
@@ -80,5 +81,16 @@ export class StudyGroupController {
   @Delete(':id')
   async deleteStudyGroup(@Param('id') id: string) {
     return this.studyGroupService.deleteStudyGroup(+id);
+  }
+
+  @Delete('student/:id')
+  async deleteStudentFromStudyGroup(
+    @Param('id', ParseIntPipe) studyGroupId: number,
+    @Query('student_code') student_code: string,
+  ) {
+    return this.studyGroupService.deleteStudentFromStudyGroup(
+      +studyGroupId,
+      student_code,
+    );
   }
 }
