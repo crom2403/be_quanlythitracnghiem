@@ -535,4 +535,26 @@ export class StudyGroupService {
       return { ...item.student };
     });
   }
+  async deleteStudentFromStudyGroup(studyGroupId: number, studentCode: string) {
+    const studyGroup = await this.studyGroupRepository.findOne({
+      where: { id: studyGroupId },
+      relations: ['group_students', 'group_students.student'],
+    });
+
+    if (!studyGroup) {
+      throw new Error('Nhóm học phần không tồn tại');
+    }
+
+    const student = studyGroup.group_students.find(
+      (groupStudent) => groupStudent.student.student_code === studentCode,
+    );
+    if (!student) {
+      throw new Error('Sinh viên không tồn tại trong nhóm học phần này');
+    }
+    await this.groupStudentRepository.remove(student);
+    return {
+      success: true,
+      message: 'Xóa sinh viên khỏi nhóm thành công',
+    };
+  }
 }
