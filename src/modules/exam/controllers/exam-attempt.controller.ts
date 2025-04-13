@@ -33,6 +33,11 @@ export class ExamAttemptController {
   //   // );
   // }
 
+  @Get('get-detail-of-exam-attempt/:examAttemptId')
+  async getDetailExamAttempt(@Param('examAttemptId') examAttemptId: string) {
+    return this.examAttemptService.getDetailExamAttempt(+examAttemptId);
+  }
+
   @Post()
   async createExamAttempt(
     @Request() req: any,

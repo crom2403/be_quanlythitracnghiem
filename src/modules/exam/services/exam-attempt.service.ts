@@ -249,4 +249,49 @@ export class ExamAttemptService {
     console.log(examAttempt);
     return examAttempt;
   }
+
+  async getDetailExamAttempt(examAttemptId: number) {
+    const examAttempt = await this.examAttemptRepository.findOne({
+      where: { id: examAttemptId },
+      relations: [
+        'exam',
+        'user',
+        'exam.exam_questions',
+        'exam.exam_questions.question',
+        'exam.exam_questions.question.answers',
+      ],
+    });
+
+    const listAttemptAnswer = await this.attemptAnswerRepository.find({
+      where: { attempt: { id: examAttemptId } },
+      relations: ['question', 'answer'],
+    });
+
+    const listAnswerStudentSelected = listAttemptAnswer.map((_) => {
+      return {
+        question_id: _.question.id,
+        answer_id: _.answer.id,
+        is_selected: _.is_selected,
+      };
+    });
+    console.log(listAttemptAnswer);
+
+    const listQuestion = examAttempt?.exam.exam_questions.map((_) => {
+      return {
+        question_id: _.question.id,
+        question_content: _.question.content,
+        order_index: _.order_index,
+        list_anwers: _.question.answers,
+      };
+    });
+
+    if (!examAttempt) {
+      throw new HttpErrorByCode[400]('Bài thi không tồn tại');
+    }
+
+    return {
+      listQuestion: listQuestion,
+      listAnswerStudentSelected: listAnswerStudentSelected,
+    };
+  }
 }
