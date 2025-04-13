@@ -15,6 +15,24 @@ export class ExamAttemptController {
     return this.examAttemptService.checkStudentCanTakeExam(userId, +examId);
   }
 
+  @Get('get-all-exam-attempt-of-exam/:examId')
+  async getExamDetail(@Param('examId') examId: string, @Request() req: any) {
+    const userId = req.user?.sub.userId;
+    return this.examAttemptService.getAllExamAttemptOfExam(+examId, userId);
+  }
+
+  // @Post('get-detail-exam-attempt-of-student')
+  // async getDetailExamAttemptOfStudent(
+  //   @Request() req: any,
+  //   @Body() body: { examId: number; studentId: number },
+  // ) {
+  //   const userId = req.user?.sub.userId;
+  //   // return this.examAttemptService.getDetailExamAttemptOfStudent(
+  //   //   userId,
+  //   //   body.examId,
+  //   // );
+  // }
+
   @Post()
   async createExamAttempt(
     @Request() req: any,

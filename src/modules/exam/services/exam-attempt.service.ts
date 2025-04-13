@@ -94,6 +94,9 @@ export class ExamAttemptService {
     });
 
     const result = await this.examAttemptRepository.save(newExamAttempt);
+    if (!result) {
+      throw new HttpErrorByCode[500]('Không thể lưu bài thi');
+    }
 
     // Save answers
     for (const question of list_question) {
@@ -200,5 +203,50 @@ export class ExamAttemptService {
       success: true,
       message: 'Sinh viên có thể làm bài thi này',
     };
+  }
+
+  async getAllExamAttemptOfExam(examId: number, userId: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['role'],
+    });
+    if (!user) {
+      throw new HttpErrorByCode[400]('Người dùng không tồn tại');
+    }
+
+    if (
+      user.role.name !== RoleType.TEACHER &&
+      user.role.name !== RoleType.ADMIN
+    ) {
+      throw new HttpErrorByCode[400](
+        'Bạn không có quyền thực hiện hành động này',
+      );
+    }
+
+    const exam = await this.examRepository.findOne({
+      where: { id: examId },
+      relations: ['exam_attempts'],
+    });
+    console.log(exam);
+    if (!exam) {
+      throw new HttpErrorByCode[400]('Bài thi không tồn tại');
+    }
+
+    const examAttempt = await this.examAttemptRepository.find({
+      where: {
+        exam: { id: examId },
+      },
+      relations: ['user'],
+      select: {
+        user: {
+          id: true,
+          fullname: true,
+          email: true,
+          student_code: true,
+        },
+      },
+    });
+    console.log(examAttempt);
+    return examAttempt;
   }
 }

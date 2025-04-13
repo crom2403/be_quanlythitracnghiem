@@ -322,4 +322,42 @@ export class ExamService {
 
     return result;
   }
+
+  async getAllExamOfStudyGroup(studyGroupId: number, userId: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['role'],
+    });
+    // Kiểm tra nếu không tìm thấy user
+    if (!user) {
+      throw new Error('Người dùng không tồn tại');
+    }
+
+    if (user.role?.name !== 'teacher' && user.role?.name !== 'admin') {
+      throw new Error('Người dùng không phải là giáo viên hoặc admin');
+    }
+    const studyGroup = await this.studyGroupRepository.findOne({
+      where: { id: studyGroupId },
+      relations: ['teacher'],
+    });
+
+    if (!studyGroup) {
+      throw new Error('Không tìm thấy nhóm học');
+    }
+
+    const exams = await this.examStudyGroupRepository.find({
+      where: { study_group: { id: studyGroupId } },
+      relations: ['exam', 'exam.exam_study_groups'],
+    });
+
+    // Sửa logic map để xử lý mảng exam_study_group
+    const result = exams.map((_: any) => ({
+      id: _.exam.id,
+      name: _.exam.name,
+      start_time: _.exam.start_time,
+      end_time: _.exam.end_time,
+    }));
+
+    return result;
+  }
 }

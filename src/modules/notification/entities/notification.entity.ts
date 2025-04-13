@@ -13,16 +13,13 @@ export class Notification {
   id: number;
 
   @ManyToOne(() => User)
-  user: User;
+  created_by: User;
 
   @Column()
   title: string;
 
   @Column('text')
   content: string;
-
-  @Column()
-  is_read: boolean;
 
   @CreateDateColumn()
   created_at: Date;

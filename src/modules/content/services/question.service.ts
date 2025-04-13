@@ -28,10 +28,27 @@ export class QuestionService {
   async getAllQuestions(
     paginationDto: PaginationDto,
   ): Promise<PaginationResult<any>> {
-    const { page, limit } = paginationDto;
+    const { page, limit, difficulty_level, chapterId } = paginationDto;
+
+    // Xây dựng điều kiện where động
+    const where: any = {};
+
+    // Chỉ thêm difficulty_level nếu nó hợp lệ (hard, medium, easy)
+    const validLevels = ['hard', 'medium', 'easy'];
+    if (difficulty_level && validLevels.includes(difficulty_level)) {
+      where.difficulty_level = difficulty_level;
+    }
+
+    // Chỉ thêm chapter.id nếu chapterId được cung cấp
+    if (chapterId) {
+      where.chapter = { id: chapterId };
+    }
+
+    // Truy vấn câu hỏi với phân trang
     const [items, total] = await this.questionRepository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
+      where,
       order: {
         id: 'DESC',
       },
@@ -50,14 +67,18 @@ export class QuestionService {
         },
       },
     });
-    const result = items.map((_) => {
-      return {
-        id: _.id,
-        content: _.content,
-        difficulty_level: _.difficulty_level,
-        subject_name: _.chapter.subject.name,
-      };
-    });
+
+    // Ánh xạ kết quả
+    const result = items.map((_) => ({
+      id: _.id,
+      content: _.content,
+      difficulty_level: _.difficulty_level,
+      subject_id: _.chapter?.subject?.id || null, // Phòng trường hợp chapter hoặc subject null
+      subject_name: _.chapter?.subject?.name || null, // Phòng trường hợp chapter hoặc subject null
+      chapter_id: _.chapter?.id || null, // Phòng trường hợp chapter null
+      chapter_name: _.chapter?.name || null, // Phòng trường hợp chapter null
+    }));
+
     return {
       items: result,
       total,

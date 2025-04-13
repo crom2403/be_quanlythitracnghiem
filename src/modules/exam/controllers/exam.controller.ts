@@ -25,6 +25,15 @@ export class ExamController {
     return this.examService.getAllExamOfStudent(userId);
   }
 
+  @Get('/get-all-exams-of-study-group/:studyGroupId')
+  async getAllExamOfStudyGroup(
+    @Param('studyGroupId') studyGroupId: string,
+    @Request() req: any,
+  ) {
+    const userId = req.user?.sub.userId;
+    return this.examService.getAllExamOfStudyGroup(+studyGroupId, userId);
+  }
+
   @Get(':id')
   async getExamById(@Param('id') examId: string) {
     return this.examService.getExamById(+examId);
