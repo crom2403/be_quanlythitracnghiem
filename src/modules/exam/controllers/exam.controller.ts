@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Body, Controller, Get, Param, Post, Request } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Request,
+} from '@nestjs/common';
 import { CreateExamManualDto, AddQuestionToExamDto } from '../dtos';
 import { ExamService } from '../services';
 
@@ -28,6 +36,7 @@ export class ExamController {
   @Get('/get-all-exams-of-study-group/:studyGroupId')
   async getAllExamOfStudyGroup(
     @Param('studyGroupId') studyGroupId: string,
+    // @Query('group_student_id') group_student_id: string,
     @Request() req: any,
   ) {
     const userId = req.user?.sub.userId;

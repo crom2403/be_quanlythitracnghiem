@@ -39,6 +39,7 @@ export class UsersService {
       order: {
         id: 'DESC',
       },
+      relations: ['role'],
     });
 
     return {
