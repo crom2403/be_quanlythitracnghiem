@@ -51,6 +51,7 @@ export class ExamAttemptService {
       end_time,
       test_time,
       tab_switch_count,
+      point,
     } = createExamAttemptDto;
 
     // Check user
@@ -76,18 +77,18 @@ export class ExamAttemptService {
       throw new HttpErrorByCode[400]('Bài thi không tồn tại');
     }
 
-    // Calculate score
-    const score = await this.calculateExamScore(
-      list_question,
-      exam.exam_questions,
-    );
+    // // Calculate score
+    // const score = await this.calculateExamScore(
+    //   list_question,
+    //   exam.exam_questions,
+    // );
 
     // Create exam attempt
     const newExamAttempt = this.examAttemptRepository.create({
       end_time: new Date(end_time),
       start_time: new Date(start_time),
       tab_switch_count,
-      score,
+      score: point,
       test_time: +test_time,
       exam,
       user,

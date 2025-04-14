@@ -360,4 +360,15 @@ export class ExamService {
 
     return result;
   }
+
+  async getListStudentDoExam(examId: number) {
+    const exam = await this.examRepository.findOne({
+      where: { id: examId },
+      relations: ['exam_study_groups'],
+    });
+
+    if (!exam) {
+      throw new Error('Không tìm thấy bài thi');
+    }
+  }
 }

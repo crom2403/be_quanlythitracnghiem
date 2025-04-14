@@ -19,6 +19,9 @@ export class CreateExamAttemptDto {
   tab_switch_count: number;
   @ApiProperty()
   @IsNotEmpty()
+  point: number;
+  @ApiProperty()
+  @IsNotEmpty()
   list_question: QuestionItemDto[];
 }
 
