@@ -361,7 +361,7 @@ export class ExamService {
     return result;
   }
 
-  async getListStudentDoExam(examId: number) {
+  async getListStudentDoExam(examId: number, study_group_id: number) {
     const exam = await this.examRepository.findOne({
       where: { id: examId },
       relations: ['exam_study_groups'],

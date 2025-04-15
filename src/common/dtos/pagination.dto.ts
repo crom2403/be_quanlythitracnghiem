@@ -44,4 +44,9 @@ export class PaginationDto {
   @Type(() => String)
   @IsString()
   order?: string;
+
+  @IsOptional()
+  @Type(() => String)
+  @IsString()
+  role_name?: string;
 }
