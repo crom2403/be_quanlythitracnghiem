@@ -14,9 +14,11 @@ export class QuestionController {
   }
 
   @Post()
-  async createQuestion(@Request() req, @Body() question: CreateQuestionDto) {
+  async createQuestion(
+    @Request() req: any,
+    @Body() question: CreateQuestionDto,
+  ) {
     const userId = req.user?.sub?.userId;
-
     return await this.questionService.createQuestion(+userId, question);
   }
 }

@@ -12,12 +12,18 @@ export class CreateQuestionDto {
 
   @ApiProperty()
   @IsNotEmpty({ each: true })
-  answers: {
-    content: string;
-    is_correct: boolean;
-  }[];
+  answers: CreateQuestionItemDto[];
 
   @ApiProperty()
   @IsNotEmpty()
   difficulty_level: string;
+}
+
+export class CreateQuestionItemDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  content: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  is_correct: boolean;
 }
