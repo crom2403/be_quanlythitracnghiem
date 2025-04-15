@@ -100,17 +100,46 @@ export class SubjectService {
   // Tạo phân công cho giáo viên
   async createAssignment(
     userId: number,
-    createAssignDto: CreateAssignmentDto[],
+    createAssignDto: CreateAssignmentDto,
   ): Promise<any> {
     // Xóa tất cả các phân công cũ của giáo viên
-    await this.teacherSubjectRepository.delete({ teacher: { id: userId } });
+
+    const user = await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+      relations: ['role'],
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.role.name !== 'admin') {
+      throw new NotFoundException('User not admin');
+    }
+
+    const teacher = await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+      relations: ['role'],
+    });
+
+    if (!teacher) {
+      throw new NotFoundException('Teacher not found');
+    }
+
+    if (teacher.role.name !== 'teacher') {
+      throw new NotFoundException('User not teacher');
+    }
+    await this.teacherSubjectRepository.delete({ teacher: { id: teacher.id } });
 
     // Tạo mới các phân công mới
-    createAssignDto.forEach(async (assign) => {
-      if (assign.isAssign) {
+    if (createAssignDto.listAssignment.length) {
+      createAssignDto.listAssignment.forEach(async (assign) => {
         await this.assignTeacherToSubject(userId, assign.subject_id);
-      }
-    });
+      });
+    }
 
     return {
       message: 'Assign teacher to subject successfully',
