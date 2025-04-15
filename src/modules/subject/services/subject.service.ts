@@ -120,7 +120,7 @@ export class SubjectService {
 
     const teacher = await this.userRepository.findOne({
       where: {
-        id: userId,
+        id: createAssignDto.teacher_id,
       },
       relations: ['role'],
     });
@@ -132,7 +132,10 @@ export class SubjectService {
     if (teacher.role.name !== 'teacher') {
       throw new NotFoundException('User not teacher');
     }
-    await this.teacherSubjectRepository.delete({ teacher: { id: teacher.id } });
+
+    await this.teacherSubjectRepository.delete({
+      teacher: { id: teacher.id },
+    });
 
     // Tạo mới các phân công mới
     if (createAssignDto.listAssignment.length) {

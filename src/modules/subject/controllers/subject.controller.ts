@@ -50,7 +50,7 @@ export class SubjectController {
   // Phân công giáo viên cho môn học
   @Post('assign-teacher')
   async assignTeacherToSubject(
-    @Request() req,
+    @Request() req: any,
     @Body() createAssignmentDto: CreateAssignmentDto,
   ) {
     const userId = req.user?.sub.userId;
