@@ -129,11 +129,11 @@ export class QuestionService {
 
       // Lưu các câu trả lời với reference tới câu hỏi
       const savedAnswers = await Promise.all(
-        listAnswer?.map(async (el: any) => {
+        listAnswer?.map(async (el: any, i: number) => {
           const newAnswer = new Answer();
           newAnswer.content = el.content;
           newAnswer.is_correct = el.is_correct;
-          newAnswer.order_index = el.order_index;
+          newAnswer.order_index = i + 1;
           newAnswer.question = question;
           return await this.answerRepository.save(newAnswer);
         }),

@@ -48,13 +48,13 @@ export class ExamController {
     return this.examService.getExamById(+examId);
   }
 
-  // @Get('get-list-student-do-exam/:examId')
-  // async getListStudentDoExam(
-  //   @Param('examId') examId: string,
-  //   @Query('group_student_id') group_student_id: string,
-  // ) {
-  //   return this.examService.getListStudentDoExam(+examId, +group_student_id);
-  // }
+  @Get('get-list-student-do-exam/:examId')
+  async getListStudentDoExam(
+    @Param('examId') examId: string,
+    @Query('study_group_id') study_group_id: string,
+  ) {
+    return this.examService.getListStudentDoExam(+examId, +study_group_id);
+  }
 
   @Post('/create-manual')
   async createExamManual(
