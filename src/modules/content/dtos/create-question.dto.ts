@@ -11,7 +11,7 @@ export class CreateQuestionDto {
   content: string;
 
   @ApiProperty()
-  @IsNotEmpty({ each: true })
+  @IsNotEmpty()
   answers: CreateQuestionItemDto[];
 
   @ApiProperty()
