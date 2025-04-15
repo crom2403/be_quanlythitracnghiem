@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dtos';
 import { PaginationResult } from 'src/common/interfaces';
-import { CreateQuestionDto } from '../dtos';
+import { CreateQuestionDto, CreateQuestionItemDto } from '../dtos';
 import { Answer, Question, Chapter } from '../entities';
 import { User } from 'src/modules/users/entities';
 import { Repository } from 'typeorm';
@@ -90,8 +90,6 @@ export class QuestionService {
 
   async createQuestion(userId: number, createQuestionDto: CreateQuestionDto) {
     // Kiểm tra xem user có tồn tại hay không
-    console.log(userId);
-    console.log(createQuestionDto);
     const user = await this.userRepository.findOne({
       where: {
         id: userId,
@@ -123,13 +121,13 @@ export class QuestionService {
       const question = await this.questionRepository.save({
         content: createQuestionDto.content,
         difficulty: createQuestionDto.difficulty_level,
-        chapter: chapter, // Lưu toàn bộ đối tượng chapter nếu có quan hệ
+        chapter: chapter,
         created_by: user,
       });
 
       // Lưu các câu trả lời với reference tới câu hỏi
-      const savedAnswers = await Promise.all(
-        listAnswer?.map(async (el: any, i: number) => {
+      await Promise.all(
+        listAnswer.map(async (el: CreateQuestionItemDto, i: number) => {
           const newAnswer = new Answer();
           newAnswer.content = el.content;
           newAnswer.is_correct = el.is_correct;
@@ -139,9 +137,11 @@ export class QuestionService {
         }),
       );
 
-      // Cập nhật câu hỏi với danh sách câu trả lời
-      question.answers = savedAnswers;
-      return question;
+      // Trả về status 201 và chuỗi "Thành công"
+      return {
+        statusCode: 201,
+        message: 'Thành công',
+      };
     } catch (error) {
       throw new InternalServerErrorException(
         `Failed to create question: ${error.message}`,
