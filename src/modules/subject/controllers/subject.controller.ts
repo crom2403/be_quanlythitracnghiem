@@ -61,6 +61,16 @@ export class SubjectController {
     );
   }
 
+  @Delete('admin/delete-assign-teacher/:assignId')
+  async deleteAssignTeacher(
+    @Request() req: any,
+    @Param('assignId') assignId: string,
+  ) {
+    const userId = req.user?.sub.userId;
+
+    return await this.subjectService.deleteAssignTeacher(userId, +assignId);
+  }
+
   @Post()
   @ApiResponse({ status: 201, description: 'User created successfully.' })
   @ApiResponse({ status: 400, description: 'Bad request.' })

@@ -140,7 +140,7 @@ export class SubjectService {
     // Tạo mới các phân công mới
     if (createAssignDto.listAssignment.length) {
       createAssignDto.listAssignment.forEach(async (assign) => {
-        await this.assignTeacherToSubject(userId, assign.subject_id);
+        await this.assignTeacherToSubject(teacher.id, assign.subject_id);
       });
     }
 
@@ -209,5 +209,28 @@ export class SubjectService {
       limit,
       totalPages: Math.ceil(total / limit),
     };
+  }
+
+  async deleteAssignTeacher(userId: number, assignId: number): Promise<any> {
+    const user = await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+      relations: ['role'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.role.name !== 'admin') {
+      throw new NotFoundException('User not admin');
+    }
+    const result = await this.teacherSubjectRepository.delete(assignId);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Assignment with ID ${assignId} not found`);
+    } else {
+      return `Assignment with Id ${assignId} deleted successfully`;
+    }
   }
 }
