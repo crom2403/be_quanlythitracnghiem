@@ -31,9 +31,10 @@ export class StudyGroupController {
     return this.studyGroupService.getAllStudentOfStudyGroup(+id);
   }
 
-  @Get('teacher/:teacher_id')
-  async getStudyGroupByTeacherId(@Param('teacher_id') teacher_id: string) {
-    return this.studyGroupService.getStudyGroupByTeacherId(+teacher_id);
+  @Get('teacher')
+  async getStudyGroupByTeacherId(@Request() req: any) {
+    const userId = req.user?.sub.userId;
+    return this.studyGroupService.getStudyGroupByTeacherId(+userId);
   }
 
   @Get(':id')
