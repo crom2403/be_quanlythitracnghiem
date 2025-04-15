@@ -245,11 +245,12 @@ export class StudyGroupService {
         // Tạo key duy nhất dựa trên subject.id, academic_year.id, semester.id
         const key = `${group.subject.id}-${group.academic_year.id}-${group.semester.id}`;
         const name = `${group.subject.public_id} - ${group.subject.name} - NH${group.academic_year.start_year} - ${group.semester.name}`;
-
+        const subject_id = group.subject.id;
         // Nếu key chưa tồn tại trong accumulator, tạo một entry mới
         if (!acc[key]) {
           acc[key] = {
             name,
+            subject_id,
             // subject, // Thông tin môn học
             // academicYear, // Thông tin năm học
             // semester, // Thông tin học kỳ
