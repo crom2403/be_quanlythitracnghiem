@@ -1,7 +1,7 @@
 import { UpdateSubjectDto } from '../dtos';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dtos';
 import { PaginationResult } from 'src/common/interfaces';
 import { CreateAssignmentDto, CreateSubjectDto } from '../dtos';
@@ -114,6 +114,68 @@ export class SubjectService {
 
     return {
       message: 'Assign teacher to subject successfully',
+    };
+  }
+
+  async getAssignmentByAdmin(userId: number, paginationDto: PaginationDto) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+      relations: ['role'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.role.name !== 'admin') {
+      throw new NotFoundException('User not admin');
+    }
+
+    const { page, limit, teacher_name, subject_name } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+    if (teacher_name) {
+      where.teacher = {
+        fullname: Like(`%${teacher_name}%`), // Tìm kiếm gần đúng theo tên giáo viên
+      };
+    }
+    if (subject_name) {
+      where.subject = {
+        name: Like(`%${subject_name}%`), // Tìm kiếm gần đúng theo tên môn học
+      };
+    }
+
+    const [items, total] = await this.teacherSubjectRepository.findAndCount({
+      relations: ['teacher', 'subject'],
+      select: {
+        id: true,
+        teacher: {
+          id: true,
+          fullname: true,
+        },
+        subject: {
+          id: true,
+          public_id: true,
+          name: true,
+        },
+      },
+      where,
+      skip,
+      take: limit,
+      order: {
+        id: 'DESC',
+      },
+    });
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     };
   }
 }

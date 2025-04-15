@@ -35,6 +35,18 @@ export class SubjectController {
     }
   }
 
+  @Get('admin/assign-teacher')
+  async getAssignmentByAdmin(
+    @Request() req: any,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    const userId = req.user?.sub.userId;
+    return await this.subjectService.getAssignmentByAdmin(
+      +userId,
+      paginationDto,
+    );
+  }
+
   // Phân công giáo viên cho môn học
   @Post('assign-teacher')
   async assignTeacherToSubject(
