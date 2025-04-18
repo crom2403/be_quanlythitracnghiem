@@ -120,7 +120,7 @@ export class QuestionService {
       // Tạo và lưu câu hỏi trước
       const question = await this.questionRepository.save({
         content: createQuestionDto.content,
-        difficulty: createQuestionDto.difficulty_level,
+        difficulty_level: createQuestionDto.difficulty_level,
         chapter: chapter,
         created_by: user,
       });
