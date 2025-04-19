@@ -122,6 +122,7 @@ export class ExamService {
         }
         const examQuestion = this.examQuestionRepository.create({
           ...question,
+          points: 0,
           question: questionDb,
           exam,
         });
