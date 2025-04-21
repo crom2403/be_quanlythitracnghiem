@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   BadRequestException,
   HttpException,
@@ -98,7 +99,7 @@ export class StudyGroupService {
 
   async getAllStudyGroups(
     paginationDto: PaginationDto,
-  ): Promise<PaginationResult<StudyGroup> | StudyGroup[]> {
+  ): Promise<PaginationResult<any>> {
     const { page, limit } = paginationDto;
     const [items, total] = await this.studyGroupRepository.findAndCount({
       skip: (page - 1) * limit,
@@ -106,11 +107,18 @@ export class StudyGroupService {
       order: {
         id: 'DESC',
       },
-      relations: ['semester', 'academic_year', 'subject', 'teacher'],
+      relations: [
+        'semester',
+        'academic_year',
+        'subject',
+        'teacher',
+        'group_students',
+      ],
       select: {
         id: true, // Chọn thuộc tính id của StudyGroup
         name: true, // Chọn thuộc tính name của StudyGroup
         invite_code: true,
+        note: true,
         semester: {
           id: true, // Chọn thuộc tính id của semester
           name: true, // Chọn thuộc tính name của semester
@@ -127,11 +135,26 @@ export class StudyGroupService {
           id: true, // Chọn thuộc tính id của teacher
           fullname: true, // Chọn thuộc tính name của teacher
         },
+        group_students: {
+          id: true, // Chọn thuộc tính id của group_students
+        },
       },
     });
 
+    const itemsWithCount = items.map((studyGroup) => {
+      const studentCount = studyGroup.group_students?.length;
+      const { group_students, note, ...data } = studyGroup;
+      return {
+        ...data,
+        detail: {
+          amount: studentCount,
+          note: studyGroup.note,
+        },
+      };
+    });
+
     return {
-      items,
+      items: itemsWithCount,
       total,
       page,
       limit,
